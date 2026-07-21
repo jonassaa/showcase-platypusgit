@@ -2,8 +2,10 @@
 //
 // Everything it calls is a pure function living somewhere else, which is why
 // there is no `test/main.test.ts`: there is nothing here to assert that is not
-// already asserted about `store`.
+// already asserted about `store` or `render`.
 
+import { render } from './render.ts';
+import { migrateLegacyKey } from './compat.ts';
 import {
   activeNote,
   createNote,
@@ -19,6 +21,7 @@ const STARTER = '# First note\n\nplatypad keeps this in your browser and nowhere
 interface Ui {
   list: HTMLElement;
   editor: HTMLTextAreaElement;
+  preview: HTMLElement;
 }
 
 let state: StoreState = { notes: [], activeId: null };
@@ -45,16 +48,22 @@ function drawList(ui: Ui): void {
   );
 }
 
-function commit(ui: Ui): void {
-  saveState(window.localStorage, state);
-  drawList(ui);
+function drawPreview(ui: Ui): void {
   const note = activeNote(state);
+  ui.preview.innerHTML = note === null ? '' : render(note.body);
   if (note !== null && ui.editor.value !== note.body) ui.editor.value = note.body;
 }
 
-function start(): void {
-  const ui: Ui = { list: el('list'), editor: el('editor') };
+function commit(ui: Ui): void {
+  saveState(window.localStorage, state);
+  drawList(ui);
+  drawPreview(ui);
+}
 
+function start(): void {
+  const ui: Ui = { list: el('list'), editor: el('editor'), preview: el('preview') };
+
+  migrateLegacyKey(window.localStorage);
   state = loadState(window.localStorage);
   if (state.notes.length === 0) state = createNote(state, STARTER, Date.now());
 
@@ -63,6 +72,7 @@ function start(): void {
     state = updateNote(state, state.activeId, ui.editor.value, Date.now());
     saveState(window.localStorage, state);
     drawList(ui);
+    drawPreview(ui);
   });
 
   // Not bound to a key yet — the keymap arrives with the command bar.
