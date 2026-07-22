@@ -10,3 +10,6 @@ export interface Note {
   /** Epoch milliseconds. Sorting the list is the only thing that reads it. */
   updatedAt: number;
 }
+
+/** Which key table is in force. The command bar borrows the keyboard. */
+export type Mode = 'list' | 'editor' | 'command';

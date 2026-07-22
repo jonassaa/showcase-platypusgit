@@ -2,10 +2,11 @@
 //
 // Everything it calls is a pure function living somewhere else, which is why
 // there is no `test/main.test.ts`: there is nothing here to assert that is not
-// already asserted about `store` or `render`.
+// already asserted about `store`, `render` or `keymap`.
 
 import { render } from './render.ts';
 import { migrateLegacyKey } from './compat.ts';
+import { fromEvent, resolve } from './keymap.ts';
 import {
   activeNote,
   createNote,
@@ -15,6 +16,8 @@ import {
   updateNote,
   type StoreState,
 } from './store.ts';
+import type { Mode } from './types.ts';
+import './styles/base.css';
 
 const STARTER = '# First note\n\nplatypad keeps this in your browser and nowhere else.\n';
 
@@ -25,6 +28,7 @@ interface Ui {
 }
 
 let state: StoreState = { notes: [], activeId: null };
+let mode: Mode = 'editor';
 
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -36,9 +40,13 @@ function drawList(ui: Ui): void {
   ui.list.replaceChildren(
     ...state.notes.map((note) => {
       const row = document.createElement('button');
+      row.className = note.id === state.activeId ? 'row row--active' : 'row';
       row.type = 'button';
-      row.textContent = note.title;
       row.dataset['id'] = note.id;
+      const title = document.createElement('span');
+      title.className = 'row__title';
+      title.textContent = note.title;
+      row.append(title);
       row.addEventListener('click', () => {
         state = { ...state, activeId: note.id };
         commit(ui);
@@ -60,6 +68,39 @@ function commit(ui: Ui): void {
   drawPreview(ui);
 }
 
+function run(ui: Ui, command: string): boolean {
+  switch (command) {
+    case 'note.new':
+      state = createNote(state, '# Untitled\n\n', Date.now());
+      ui.editor.focus();
+      break;
+    case 'note.delete':
+      if (state.activeId !== null) state = deleteNote(state, state.activeId);
+      break;
+    case 'note.save':
+      break;
+    case 'editor.blur':
+      mode = 'list';
+      ui.list.focus();
+      return true;
+    case 'palette.open':
+      mode = 'command';
+      return true;
+    case 'list.next':
+    case 'list.prev': {
+      const at = state.notes.findIndex((n) => n.id === state.activeId);
+      const step = command === 'list.next' ? 1 : -1;
+      const next = state.notes[Math.min(Math.max(at + step, 0), state.notes.length - 1)];
+      if (next !== undefined) state = { ...state, activeId: next.id };
+      break;
+    }
+    default:
+      return false;
+  }
+  commit(ui);
+  return true;
+}
+
 function start(): void {
   const ui: Ui = { list: el('list'), editor: el('editor'), preview: el('preview') };
 
@@ -75,10 +116,12 @@ function start(): void {
     drawPreview(ui);
   });
 
-  // Not bound to a key yet — the keymap arrives with the command bar.
-  window.addEventListener('platypad:delete', () => {
-    if (state.activeId !== null) state = deleteNote(state, state.activeId);
-    commit(ui);
+  ui.editor.addEventListener('focus', () => (mode = 'editor'));
+
+  window.addEventListener('keydown', (event) => {
+    const command = resolve(mode, fromEvent(event));
+    if (command === null) return;
+    if (run(ui, command)) event.preventDefault();
   });
 
   commit(ui);

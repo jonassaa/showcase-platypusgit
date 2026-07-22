@@ -5,12 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="./favicon.png" />
     <title>platypad</title>
+    <meta name="description" content="An offline scratchpad with a live markdown preview." />
   </head>
   <body>
-    <main>
-      <nav id="list"></nav>
-      <textarea id="editor" spellcheck="false" aria-label="Note body"></textarea>
-      <article id="preview"></article>
+    <header class="bar">
+      <img class="bar__logo" src="./logo.svg" alt="platypad" width="20" height="20" />
+    </header>
+
+    <main class="grid">
+      <nav class="pane pane--list">
+        <div id="list" class="list" tabindex="0"></div>
+      </nav>
+      <section class="pane pane--editor">
+        <textarea id="editor" class="editor" spellcheck="false" aria-label="Note body"></textarea>
+      </section>
+      <section class="pane pane--preview">
+        <article id="preview" class="preview"></article>
+      </section>
     </main>
 
     <script type="module" src="./src/main.ts"></script>
