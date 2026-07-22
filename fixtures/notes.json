@@ -1,0 +1,44 @@
+{
+  "activeId": "n02",
+  "notes": [
+    {
+      "id": "n02",
+      "title": "Keyboard first",
+      "tags": [],
+      "updatedAt": 1753174800000,
+      "body": [
+        "# Keyboard first",
+        "",
+        "`Mod+N` starts a note. `Mod+Backspace` deletes the selected one. Arrow",
+        "keys move the selection while the list has focus, and `Escape` hands",
+        "focus back to it from the editor."
+      ]
+    },
+    {
+      "id": "n01",
+      "title": "Markdown, the useful third of it",
+      "tags": [],
+      "updatedAt": 1753171200000,
+      "body": [
+        "# Markdown, the useful third of it",
+        "",
+        "Headings, paragraphs, bullets, `code`, **strong** and *emphasis* render",
+        "live in the right-hand pane. Anything else is shown as the literal text",
+        "you typed, which is a better answer than a half-rendered table."
+      ]
+    },
+    {
+      "id": "n00",
+      "title": "Welcome to platypad",
+      "tags": [],
+      "updatedAt": 1753167600000,
+      "body": [
+        "# Welcome to platypad",
+        "",
+        "Everything you type stays in this browser. There is no account, no sync",
+        "and no server — closing the tab is the only save button that matters,",
+        "and it is pressed for you."
+      ]
+    }
+  ]
+}

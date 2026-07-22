@@ -11,15 +11,16 @@ import {
   activeNote,
   createNote,
   deleteNote,
+  fixtureToState,
   loadState,
   saveState,
   updateNote,
+  type Fixture,
   type StoreState,
 } from './store.ts';
 import type { Mode } from './types.ts';
+import starter from '../fixtures/notes.json';
 import './styles/base.css';
-
-const STARTER = '# First note\n\nplatypad keeps this in your browser and nowhere else.\n';
 
 interface Ui {
   list: HTMLElement;
@@ -79,6 +80,7 @@ function run(ui: Ui, command: string): boolean {
       break;
     case 'note.save':
       break;
+
     case 'editor.blur':
       mode = 'list';
       ui.list.focus();
@@ -94,6 +96,7 @@ function run(ui: Ui, command: string): boolean {
       if (next !== undefined) state = { ...state, activeId: next.id };
       break;
     }
+
     default:
       return false;
   }
@@ -106,7 +109,7 @@ function start(): void {
 
   migrateLegacyKey(window.localStorage);
   state = loadState(window.localStorage);
-  if (state.notes.length === 0) state = createNote(state, STARTER, Date.now());
+  if (state.notes.length === 0) state = fixtureToState(starter as Fixture);
 
   ui.editor.addEventListener('input', () => {
     if (state.activeId === null) return;

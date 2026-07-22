@@ -59,6 +59,42 @@ export function activeNote(state: StoreState): Note | null {
   return state.notes.find((n) => n.id === state.activeId) ?? null;
 }
 
+/** The on-disk shape of `fixtures/notes.json`. */
+export interface FixtureNote {
+  id: string;
+  title: string;
+  tags: string[];
+  updatedAt: number;
+  /** One entry per line. Joined on load. */
+  body: string[];
+}
+
+export interface Fixture {
+  activeId: string;
+  notes: FixtureNote[];
+}
+
+/**
+ * Turn the checked-in starter notebook into state.
+ *
+ * The title is re-derived rather than trusted: the fixture carries one so the
+ * JSON is readable on its own, but `deriveTitle` is the only definition that
+ * matters, and a fixture that disagrees with it is a stale fixture, not a
+ * second opinion.
+ */
+export function fixtureToState(fixture: Fixture): StoreState {
+  const notes: Note[] = fixture.notes.map((n) => {
+    const body = n.body.join('\n');
+    return {
+      id: n.id,
+      title: deriveTitle(body),
+      body,
+      updatedAt: n.updatedAt,
+    };
+  });
+  return { notes, activeId: notes[0]?.id ?? null };
+}
+
 /**
  * Read the notes back.
  *

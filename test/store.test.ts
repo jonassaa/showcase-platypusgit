@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
+import fixture from '../fixtures/notes.json';
 import {
   createNote,
   deleteNote,
   deriveTitle,
   emptyState,
+  fixtureToState,
   loadState,
   saveState,
   updateNote,
+  type Fixture,
   type StorageLike,
 } from '../src/store.ts';
 
@@ -76,5 +79,26 @@ describe('persistence', () => {
 
   it('treats unparseable JSON as no notes yet rather than throwing', () => {
     expect(loadState(stub({ 'platypad.notes.v1': '{not json' }))).toEqual(emptyState());
+  });
+});
+
+describe('the checked-in starter notebook', () => {
+  it('loads, and makes the first note active', () => {
+    const state = fixtureToState(fixture as Fixture);
+    expect(state.notes.length).toBeGreaterThan(1);
+    expect(state.activeId).toBe(state.notes[0]?.id);
+  });
+
+  it('joins each body back into one string', () => {
+    const state = fixtureToState(fixture as Fixture);
+    expect(state.notes.some((n) => n.body.includes('\n'))).toBe(true);
+  });
+
+  // The fixture carries a title so the JSON reads on its own, but the loader
+  // re-derives it. If those ever disagree the fixture is stale.
+  it('agrees with deriveTitle on every note', () => {
+    for (const raw of (fixture as Fixture).notes) {
+      expect(deriveTitle(raw.body.join('\n'))).toBe(raw.title);
+    }
   });
 });
