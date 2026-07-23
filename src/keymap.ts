@@ -44,7 +44,11 @@ export function resolve(mode: Mode, chord: Chord): string | null {
     case 'Mod+Backspace':
       return mode === 'list' ? 'note.delete' : null;
     case 'Escape':
-      return mode === 'editor' ? 'editor.blur' : null;
+      // Every mode that can trap focus needs a way out of it. Handling only the
+      // editor left the command bar with no exit but the mouse.
+      if (mode === 'command') return 'palette.close';
+      if (mode === 'editor') return 'editor.blur';
+      return null;
     default:
       return null;
   }

@@ -88,6 +88,10 @@ function run(ui: Ui, command: string): boolean {
     case 'palette.open':
       mode = 'command';
       return true;
+    case 'palette.close':
+      mode = 'editor';
+      ui.editor.focus();
+      return true;
     case 'list.next':
     case 'list.prev': {
       const at = state.notes.findIndex((n) => n.id === state.activeId);
