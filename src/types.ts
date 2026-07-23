@@ -13,3 +13,16 @@ export interface Note {
 
 /** Which key table is in force. The command bar borrows the keyboard. */
 export type Mode = 'list' | 'editor' | 'command';
+
+/** A half-open interval over a string, in UTF-16 code units. */
+export interface Range {
+  start: number;
+  end: number;
+}
+
+/** One note that matched a query, with the spans worth highlighting. */
+export interface SearchHit {
+  id: string;
+  score: number;
+  ranges: Range[];
+}
