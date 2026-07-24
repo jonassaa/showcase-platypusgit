@@ -1,4 +1,8 @@
 // Substring search over note bodies, and the spans the list view highlights.
+//
+// Two passes on purpose. `highlightRanges` answers "where does this query appear
+// in this text", and knows nothing about notes; `scoreNote` answers "how well
+// does this note match", and knows nothing about rendering.
 
 import type { Note, Range, SearchHit } from './types.ts';
 
@@ -23,21 +27,29 @@ export function highlightRanges(text: string, query: string): Range[] {
   return out;
 }
 
+/**
+ * How well one note matches, or 0 for no match.
+ *
+ * A title hit is worth more than a body hit, and a note that matches in both
+ * beats one that matches twice in the body. Nothing here is tuned; it is just
+ * enough ordering that the list does not feel random.
+ */
+export function scoreNote(note: Note, query: string): number {
+  const needle = query.trim().toLowerCase();
+  if (needle === '') return 0;
+  const inTitle = highlightRanges(note.title, needle).length;
+  const inBody = highlightRanges(note.body, needle).length;
+  if (inTitle === 0 && inBody === 0) return 0;
+  return inTitle * 10 + Math.min(inBody, 5);
+}
+
 /** Matching notes, best first, each with the body spans to highlight. */
 export function search(notes: readonly Note[], query: string): SearchHit[] {
-  const needle = query.trim();
-  if (needle === '') return [];
-
   const hits: SearchHit[] = [];
   for (const note of notes) {
-    const inTitle = highlightRanges(note.title, needle);
-    const inBody = highlightRanges(note.body, needle);
-    if (inTitle.length === 0 && inBody.length === 0) continue;
-    hits.push({
-      id: note.id,
-      score: inTitle.length * 10 + Math.min(inBody.length, 5),
-      ranges: inBody,
-    });
+    const score = scoreNote(note, query);
+    if (score === 0) continue;
+    hits.push({ id: note.id, score, ranges: highlightRanges(note.body, query) });
   }
   return hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
