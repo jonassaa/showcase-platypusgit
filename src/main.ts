@@ -20,9 +20,11 @@ import {
   type Fixture,
   type StoreState,
 } from './store.ts';
-import type { Mode } from './types.ts';
+import { applyTheme, followSystem, nextTheme, preferredTheme } from './theme.ts';
+import type { Mode, ThemeName } from './types.ts';
 import starter from '../fixtures/notes.json';
 import './styles/base.css';
+import './styles/theme.scss';
 
 interface Ui {
   list: HTMLElement;
@@ -34,6 +36,7 @@ interface Ui {
 
 let state: StoreState = { notes: [], activeId: null };
 let mode: Mode = 'editor';
+let theme: ThemeName = 'light';
 
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -103,6 +106,10 @@ function run(ui: Ui, command: string): boolean {
       break;
     case 'note.save':
       break;
+    case 'theme.toggle':
+      theme = nextTheme(theme);
+      applyTheme(document.documentElement, theme);
+      return true;
 
     case 'editor.blur':
       mode = 'list';
@@ -165,6 +172,13 @@ function start(): void {
     const command = resolve(mode, fromEvent(event));
     if (command === null) return;
     if (run(ui, command)) event.preventDefault();
+  });
+
+  theme = preferredTheme();
+  applyTheme(document.documentElement, theme);
+  followSystem((next) => {
+    theme = next;
+    applyTheme(document.documentElement, theme);
   });
 
   commit(ui);

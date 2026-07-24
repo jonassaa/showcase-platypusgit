@@ -1,0 +1,85 @@
+// Presentation for the rendered preview.
+//
+// The token VALUES live in src/theme.ts, because the HTML export has to inline
+// them into a standalone file and cannot read a stylesheet. What lives here is
+// how the preview uses them — which is not something the export needs to know.
+
+$radius: 6px;
+$rhythm: 0.85rem;
+
+@mixin bordered($colour: var(--border)) {
+  border: 1px solid $colour;
+  border-radius: $radius;
+}
+
+.preview {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 1.4rem 0 $rhythm;
+    font-weight: 650;
+    line-height: 1.25;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  h3 {
+    font-size: 1.05rem;
+  }
+
+  p,
+  ul,
+  ol {
+    margin: 0 0 $rhythm;
+  }
+
+  code {
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--code-bg);
+    font:
+      0.9em ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      monospace;
+  }
+
+  pre {
+    @include bordered;
+
+    margin: 0 0 $rhythm;
+    padding: 10px 12px;
+    overflow-x: auto;
+    background: var(--code-bg);
+
+    code {
+      padding: 0;
+      background: none;
+    }
+  }
+
+  blockquote {
+    margin: 0 0 $rhythm;
+    padding: 2px 0 2px 12px;
+    border-left: 3px solid var(--accent);
+    color: var(--fg-muted);
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.3rem;
+  }
+}

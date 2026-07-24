@@ -11,6 +11,8 @@ export interface Note {
   updatedAt: number;
 }
 
+export type ThemeName = 'light' | 'dark';
+
 /** Which key table is in force. The command bar borrows the keyboard. */
 export type Mode = 'list' | 'editor' | 'command';
 
