@@ -33,6 +33,8 @@ export function resolve(mode: Mode, chord: Chord): string | null {
   switch (chordName(chord)) {
     case 'Mod+K':
       return 'palette.open';
+    case 'Mod+F':
+      return 'search.focus';
     case 'Mod+N':
       return 'note.new';
     case 'Mod+S':

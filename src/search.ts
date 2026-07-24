@@ -41,3 +41,21 @@ export function search(notes: readonly Note[], query: string): SearchHit[] {
   }
   return hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
+
+/**
+ * Split `text` into alternating plain and matched pieces.
+ *
+ * The list view walks this instead of building HTML from the ranges itself, so
+ * there is exactly one place that has to get the boundaries right.
+ */
+export function segment(text: string, ranges: readonly Range[]): { text: string; hit: boolean }[] {
+  const out: { text: string; hit: boolean }[] = [];
+  let at = 0;
+  for (const r of ranges) {
+    if (r.start > at) out.push({ text: text.slice(at, r.start), hit: false });
+    out.push({ text: text.slice(r.start, r.end), hit: true });
+    at = r.end;
+  }
+  if (at < text.length) out.push({ text: text.slice(at), hit: false });
+  return out;
+}
