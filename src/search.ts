@@ -9,20 +9,22 @@ import type { Note, Range, SearchHit } from './types.ts';
 /**
  * Every occurrence of `query` in `text`, case-insensitively.
  *
- * The offsets are into the ORIGINAL text, so the caller can slice it without
- * having to know anything about how the match was found.
+ * The haystack is lowercased once up front instead of once per match. For a
+ * note of any size that is the difference between one allocation and one per
+ * hit, and search runs on every keystroke.
  */
 export function highlightRanges(text: string, query: string): Range[] {
   const out: Range[] = [];
   const needle = query.trim().toLowerCase();
   if (needle === '') return out;
 
+  const hay = text.toLowerCase();
   let from = 0;
   for (;;) {
-    const at = text.toLowerCase().indexOf(needle, from);
-    if (at === -1) break;
-    out.push({ start: at, end: at + needle.length });
-    from = at + needle.length;
+    const rel = hay.slice(from).indexOf(needle);
+    if (rel === -1) break;
+    out.push({ start: rel, end: rel + needle.length });
+    from += rel + needle.length;
   }
   return out;
 }
