@@ -5,6 +5,8 @@
 // already asserted about `store`, `render` or `keymap`.
 
 import { render } from './render.ts';
+import { search, segment } from './search.ts';
+import type { Note } from './types.ts';
 import { migrateLegacyKey } from './compat.ts';
 import { fromEvent, resolve } from './keymap.ts';
 import {
@@ -26,6 +28,8 @@ interface Ui {
   list: HTMLElement;
   editor: HTMLTextAreaElement;
   preview: HTMLElement;
+  query: HTMLInputElement;
+  status: HTMLElement;
 }
 
 let state: StoreState = { notes: [], activeId: null };
@@ -37,16 +41,34 @@ function el<T extends HTMLElement>(id: string): T {
   return node as T;
 }
 
+/** The notes the list should show, in the order it should show them. */
+function visibleNotes(ui: Ui): Note[] {
+  const query = ui.query.value.trim();
+  if (query === '') return state.notes;
+  const order = new Map(search(state.notes, query).map((h, i) => [h.id, i]));
+  return state.notes
+    .filter((n) => order.has(n.id))
+    .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
+
 function drawList(ui: Ui): void {
+  const query = ui.query.value.trim();
+  const notes = visibleNotes(ui);
   ui.list.replaceChildren(
-    ...state.notes.map((note) => {
+    ...notes.map((note) => {
       const row = document.createElement('button');
       row.className = note.id === state.activeId ? 'row row--active' : 'row';
       row.type = 'button';
       row.dataset['id'] = note.id;
       const title = document.createElement('span');
       title.className = 'row__title';
-      title.textContent = note.title;
+      const hits = query === '' ? [] : (search([note], query)[0]?.ranges ?? []);
+      for (const piece of segment(note.title, hits.slice(0, 8))) {
+        const span = document.createElement('span');
+        span.textContent = piece.text;
+        if (piece.hit) span.className = 'hit';
+        title.append(span);
+      }
       row.append(title);
       row.addEventListener('click', () => {
         state = { ...state, activeId: note.id };
@@ -55,6 +77,7 @@ function drawList(ui: Ui): void {
       return row;
     }),
   );
+  ui.status.textContent = `${notes.length} of ${state.notes.length} notes`;
 }
 
 function drawPreview(ui: Ui): void {
@@ -94,12 +117,17 @@ function run(ui: Ui, command: string): boolean {
       return true;
     case 'list.next':
     case 'list.prev': {
-      const at = state.notes.findIndex((n) => n.id === state.activeId);
+      const notes = visibleNotes(ui);
+      const at = notes.findIndex((n) => n.id === state.activeId);
       const step = command === 'list.next' ? 1 : -1;
-      const next = state.notes[Math.min(Math.max(at + step, 0), state.notes.length - 1)];
+      const next = notes[Math.min(Math.max(at + step, 0), notes.length - 1)];
       if (next !== undefined) state = { ...state, activeId: next.id };
       break;
     }
+    case 'search.focus':
+      ui.query.focus();
+      ui.query.select();
+      return true;
 
     default:
       return false;
@@ -109,7 +137,13 @@ function run(ui: Ui, command: string): boolean {
 }
 
 function start(): void {
-  const ui: Ui = { list: el('list'), editor: el('editor'), preview: el('preview') };
+  const ui: Ui = {
+    list: el('list'),
+    editor: el('editor'),
+    preview: el('preview'),
+    query: el('query'),
+    status: el('status'),
+  };
 
   migrateLegacyKey(window.localStorage);
   state = loadState(window.localStorage);
@@ -124,6 +158,8 @@ function start(): void {
   });
 
   ui.editor.addEventListener('focus', () => (mode = 'editor'));
+  ui.query.addEventListener('input', () => drawList(ui));
+  ui.query.addEventListener('focus', () => (mode = 'command'));
 
   window.addEventListener('keydown', (event) => {
     const command = resolve(mode, fromEvent(event));
