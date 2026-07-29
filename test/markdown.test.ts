@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { escapeHtml, render } from '../src/render.ts';
+import { escapeHtml, render } from '../src/markdown/render.ts';
 
 describe('escapeHtml', () => {
   it('escapes the brackets and the quote', () => {
