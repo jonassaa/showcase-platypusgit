@@ -1,5 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { escapeHtml, render } from '../src/markdown/render.ts';
+import { escapeHtml, lexInline, render } from '../src/markdown/lex.ts';
+
+describe('lexInline', () => {
+  it('finds code, strong and emphasis', () => {
+    expect(lexInline('a `c` **b** *i*').map((t) => t.kind)).toEqual([
+      'text',
+      'code',
+      'text',
+      'strong',
+      'text',
+      'em',
+    ]);
+  });
+
+  // The bug that motivated lexing at all: the old regex pass rendered this bold.
+  it('leaves markup inside a code span literal', () => {
+    expect(lexInline('`**not bold**`')).toEqual([{ kind: 'code', value: '**not bold**' }]);
+  });
+});
 
 describe('escapeHtml', () => {
   it('escapes the brackets and the quote', () => {
