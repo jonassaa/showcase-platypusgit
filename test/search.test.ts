@@ -3,7 +3,7 @@ import { highlightRanges, scoreNote, search, segment } from '../src/search.ts';
 import type { Note } from '../src/types.ts';
 
 function note(id: string, title: string, body: string): Note {
-  return { id, title, body, updatedAt: 0 };
+  return { id, title, body, updatedAt: 0, tags: [] };
 }
 
 describe('highlightRanges', () => {
