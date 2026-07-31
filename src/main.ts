@@ -4,7 +4,7 @@
 // there is no `test/main.test.ts`: there is nothing here to assert that is not
 // already asserted about `store`, `render` or `keymap`.
 
-import { render } from './markdown/lex.ts';
+import { render } from './markdown/render.ts';
 import { search, segment } from './search.ts';
 import type { Note } from './types.ts';
 import { migrateLegacyKey } from './compat.ts';
