@@ -15,6 +15,7 @@ import {
   deleteNote,
   fixtureToState,
   loadState,
+  notesWithTag,
   saveState,
   updateNote,
   type Fixture,
@@ -37,6 +38,7 @@ interface Ui {
 let state: StoreState = { notes: [], activeId: null };
 let mode: Mode = 'editor';
 let theme: ThemeName = 'light';
+let tagFilter: string | null = null;
 
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -44,12 +46,18 @@ function el<T extends HTMLElement>(id: string): T {
   return node as T;
 }
 
-/** The notes the list should show, in the order it should show them. */
+/**
+ * The notes the list should show, in the order it should show them.
+ *
+ * The tag filter narrows first and the query ranks second. The other way round
+ * would rank notes the filter is about to throw away.
+ */
 function visibleNotes(ui: Ui): Note[] {
   const query = ui.query.value.trim();
-  if (query === '') return state.notes;
-  const order = new Map(search(state.notes, query).map((h, i) => [h.id, i]));
-  return state.notes
+  const base = tagFilter === null ? state.notes : notesWithTag(state, tagFilter);
+  if (query === '') return base;
+  const order = new Map(search(base, query).map((h, i) => [h.id, i]));
+  return base
     .filter((n) => order.has(n.id))
     .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }
