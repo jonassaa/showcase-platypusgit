@@ -11,14 +11,15 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write ."
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"*.ts\""
   },
   "devDependencies": {
     "@types/node": "22.20.1",
     "prettier": "3.9.6",
     "sass": "1.103.1",
     "typescript": "7.0.2",
-    "vite": "7.1.8",
+    "vite": "7.1.12",
     "vitest": "4.1.11"
   }
 }
