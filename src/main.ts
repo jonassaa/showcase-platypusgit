@@ -14,6 +14,7 @@ import {
   createNote,
   deleteNote,
   fixtureToState,
+  allTags,
   loadState,
   notesWithTag,
   saveState,
@@ -29,6 +30,7 @@ import './styles/theme.scss';
 
 interface Ui {
   list: HTMLElement;
+  tags: HTMLElement;
   editor: HTMLTextAreaElement;
   preview: HTMLElement;
   query: HTMLInputElement;
@@ -91,6 +93,22 @@ function drawList(ui: Ui): void {
   ui.status.textContent = `${notes.length} of ${state.notes.length} notes`;
 }
 
+function drawTags(ui: Ui): void {
+  ui.tags.replaceChildren(
+    ...allTags(state).map((tag) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = tag === tagFilter ? 'chip chip--on' : 'chip';
+      chip.textContent = `#${tag}`;
+      chip.addEventListener('click', () => {
+        tagFilter = tagFilter === tag ? null : tag;
+        commit(ui);
+      });
+      return chip;
+    }),
+  );
+}
+
 function drawPreview(ui: Ui): void {
   const note = activeNote(state);
   ui.preview.innerHTML = note === null ? '' : render(note.body);
@@ -100,6 +118,7 @@ function drawPreview(ui: Ui): void {
 function commit(ui: Ui): void {
   saveState(window.localStorage, state);
   drawList(ui);
+  drawTags(ui);
   drawPreview(ui);
 }
 
@@ -154,6 +173,7 @@ function run(ui: Ui, command: string): boolean {
 function start(): void {
   const ui: Ui = {
     list: el('list'),
+    tags: el('tags'),
     editor: el('editor'),
     preview: el('preview'),
     query: el('query'),
@@ -168,6 +188,7 @@ function start(): void {
     if (state.activeId === null) return;
     state = updateNote(state, state.activeId, ui.editor.value, Date.now());
     saveState(window.localStorage, state);
+    drawTags(ui);
     drawList(ui);
     drawPreview(ui);
   });
