@@ -3,7 +3,7 @@
 // A chord resolves against a mode, so the same key can mean different things in
 // the editor and in the list without either caller knowing about the other.
 
-import type { Mode } from './types.ts';
+import type { Mode } from "./types.ts";
 
 /** A normalised key press. Whatever produced it, the resolver sees only this. */
 export interface Chord {
@@ -16,10 +16,10 @@ export interface Chord {
 /** `Mod` is Cmd on macOS and Ctrl everywhere else. */
 export function chordName(chord: Chord): string {
   const parts: string[] = [];
-  if (chord.ctrl || chord.meta) parts.push('Mod');
-  if (chord.shift) parts.push('Shift');
+  if (chord.ctrl || chord.meta) parts.push("Mod");
+  if (chord.shift) parts.push("Shift");
   parts.push(chord.key.length === 1 ? chord.key.toUpperCase() : chord.key);
-  return parts.join('+');
+  return parts.join("+");
 }
 
 /**
@@ -31,27 +31,27 @@ export function chordName(chord: Chord): string {
  */
 export function resolve(mode: Mode, chord: Chord): string | null {
   switch (chordName(chord)) {
-    case 'Mod+K':
-      return 'palette.open';
-    case 'Mod+F':
-      return 'search.focus';
-    case 'Mod+N':
-      return 'note.new';
-    case 'Mod+S':
-      return 'note.save';
-    case 'ArrowDown':
-      return mode === 'list' ? 'list.next' : null;
-    case 'ArrowUp':
-      return mode === 'list' ? 'list.prev' : null;
-    case 'Mod+Backspace':
-      return mode === 'list' ? 'note.delete' : null;
-    case 'Mod+Shift+L':
-      return 'theme.toggle';
-    case 'Escape':
+    case "Mod+K":
+      return "palette.open";
+    case "Mod+F":
+      return "search.focus";
+    case "Mod+N":
+      return "note.new";
+    case "Mod+S":
+      return "note.save";
+    case "ArrowDown":
+      return mode === "list" ? "list.next" : null;
+    case "ArrowUp":
+      return mode === "list" ? "list.prev" : null;
+    case "Mod+Backspace":
+      return mode === "list" ? "note.delete" : null;
+    case "Mod+Shift+L":
+      return "theme.toggle";
+    case "Escape":
       // Every mode that can trap focus needs a way out of it. Handling only the
       // editor left the command bar with no exit but the mouse.
-      if (mode === 'command') return 'palette.close';
-      if (mode === 'editor') return 'editor.blur';
+      if (mode === "command") return "palette.close";
+      if (mode === "editor") return "editor.blur";
       return null;
     default:
       return null;

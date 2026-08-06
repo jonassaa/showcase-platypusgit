@@ -4,9 +4,9 @@
 // architectural purity for its own sake: it is what lets `test/store.test.ts`
 // run in node with a five-line storage stub instead of a DOM.
 
-import type { Note } from './types.ts';
+import type { Note } from "./types.ts";
 
-const KEY = 'platypad.notes.v1';
+const KEY = "platypad.notes.v1";
 
 /** The slice of the Web Storage API this module actually uses. */
 export interface StorageLike {
@@ -36,8 +36,8 @@ export function extractTags(body: string): string[] {
   const re = /(^|[\s(])#([a-z0-9][a-z0-9_-]*)/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(body)) !== null) {
-    const tag = (m[2] ?? '').toLowerCase();
-    if (tag !== '' && !seen.has(tag)) {
+    const tag = (m[2] ?? "").toLowerCase();
+    if (tag !== "" && !seen.has(tag)) {
       seen.add(tag);
       out.push(tag);
     }
@@ -47,11 +47,11 @@ export function extractTags(body: string): string[] {
 
 /** First non-blank line, trimmed of leading `#` and whitespace. */
 export function deriveTitle(body: string): string {
-  for (const line of body.split('\n')) {
-    const text = line.replace(/^#+\s*/, '').trim();
-    if (text !== '') return text.slice(0, 80);
+  for (const line of body.split("\n")) {
+    const text = line.replace(/^#+\s*/, "").trim();
+    if (text !== "") return text.slice(0, 80);
   }
-  return 'Untitled';
+  return "Untitled";
 }
 
 export function createNote(state: StoreState, body: string, now: number): StoreState {
@@ -65,7 +65,12 @@ export function createNote(state: StoreState, body: string, now: number): StoreS
   return { notes: [note, ...state.notes], activeId: note.id };
 }
 
-export function updateNote(state: StoreState, id: string, body: string, now: number): StoreState {
+export function updateNote(
+  state: StoreState,
+  id: string,
+  body: string,
+  now: number,
+): StoreState {
   const notes = state.notes.map((n) =>
     n.id === id
       ? {
@@ -118,13 +123,13 @@ export function loadState(storage: StorageLike): StoreState {
   if (raw === null) return emptyState();
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (parsed === null || typeof parsed !== 'object') return emptyState();
+    if (parsed === null || typeof parsed !== "object") return emptyState();
     const notes = (parsed as { notes?: unknown }).notes;
     if (!Array.isArray(notes)) return emptyState();
     const active = (parsed as { activeId?: unknown }).activeId;
     return {
       notes: notes as Note[],
-      activeId: typeof active === 'string' ? active : null,
+      activeId: typeof active === "string" ? active : null,
     };
   } catch {
     return emptyState();
@@ -160,7 +165,7 @@ export interface Fixture {
  */
 export function fixtureToState(fixture: Fixture): StoreState {
   const notes: Note[] = fixture.notes.map((n) => {
-    const body = n.body.join('\n');
+    const body = n.body.join("\n");
     return {
       id: n.id,
       title: deriveTitle(body),

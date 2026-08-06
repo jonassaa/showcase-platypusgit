@@ -13,10 +13,10 @@ export interface Note {
   tags: string[];
 }
 
-export type ThemeName = 'light' | 'dark';
+export type ThemeName = "light" | "dark";
 
 /** Which key table is in force. The command bar borrows the keyboard. */
-export type Mode = 'list' | 'editor' | 'command';
+export type Mode = "list" | "editor" | "command";
 
 /** A half-open interval over a string, in UTF-16 code units. */
 export interface Range {

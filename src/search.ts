@@ -4,7 +4,7 @@
 // in this text", and knows nothing about notes; `scoreNote` answers "how well
 // does this note match", and knows nothing about rendering.
 
-import type { Note, Range, SearchHit } from './types.ts';
+import type { Note, Range, SearchHit } from "./types.ts";
 
 /**
  * Every occurrence of `query` in `text`, case-insensitively.
@@ -16,7 +16,7 @@ import type { Note, Range, SearchHit } from './types.ts';
 export function highlightRanges(text: string, query: string): Range[] {
   const out: Range[] = [];
   const needle = query.trim().toLowerCase();
-  if (needle === '') return out;
+  if (needle === "") return out;
 
   const hay = text.toLowerCase();
   let from = 0;
@@ -38,7 +38,7 @@ export function highlightRanges(text: string, query: string): Range[] {
  */
 export function scoreNote(note: Note, query: string): number {
   const needle = query.trim().toLowerCase();
-  if (needle === '') return 0;
+  if (needle === "") return 0;
   const inTitle = highlightRanges(note.title, needle).length;
   const inBody = highlightRanges(note.body, needle).length;
   if (inTitle === 0 && inBody === 0) return 0;
@@ -62,7 +62,10 @@ export function search(notes: readonly Note[], query: string): SearchHit[] {
  * The list view walks this instead of building HTML from the ranges itself, so
  * there is exactly one place that has to get the boundaries right.
  */
-export function segment(text: string, ranges: readonly Range[]): { text: string; hit: boolean }[] {
+export function segment(
+  text: string,
+  ranges: readonly Range[],
+): { text: string; hit: boolean }[] {
   const out: { text: string; hit: boolean }[] = [];
   let at = 0;
   for (const r of ranges) {

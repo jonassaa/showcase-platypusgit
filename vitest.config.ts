@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 // Node environment on purpose: every module under test is pure, and the one
 // file that touches the DOM (src/main.ts) has nothing in it worth asserting
@@ -6,10 +6,10 @@ import { defineConfig } from 'vitest/config';
 // nothing and cost a second or two on every run.
 export default defineConfig({
   test: {
-    include: ['test/**/*.test.ts'],
-    environment: 'node',
+    include: ["test/**/*.test.ts"],
+    environment: "node",
     testTimeout: 10_000,
     hookTimeout: 10_000,
-    reporters: ['default'],
+    reporters: ["default"],
   },
 });

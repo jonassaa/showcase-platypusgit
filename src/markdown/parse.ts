@@ -4,14 +4,14 @@
 // consecutive lines that belong together become a single paragraph, quote or
 // list, and inline markup is lexed only once the grouping is settled.
 
-import { lexBlocks, lexInline, type Inline, type RawBlock } from './lex.ts';
+import { lexBlocks, lexInline, type Inline, type RawBlock } from "./lex.ts";
 
 export type Block =
-  | { kind: 'paragraph'; inline: Inline[] }
-  | { kind: 'heading'; level: number; inline: Inline[] }
-  | { kind: 'code'; lang: string; text: string }
-  | { kind: 'quote'; paragraphs: Inline[][] }
-  | { kind: 'list'; ordered: boolean; items: Inline[][] };
+  | { kind: "paragraph"; inline: Inline[] }
+  | { kind: "heading"; level: number; inline: Inline[] }
+  | { kind: "code"; lang: string; text: string }
+  | { kind: "quote"; paragraphs: Inline[][] }
+  | { kind: "list"; ordered: boolean; items: Inline[][] };
 
 /**
  * Join hard-wrapped lines into one paragraph.
@@ -21,11 +21,11 @@ export type Block =
  * worth honouring, because it is the one people use deliberately.
  */
 function joinParagraph(lines: readonly string[]): string {
-  let out = '';
+  let out = "";
   for (const [index, line] of lines.entries()) {
     const hardBreak = /\s\s$/.test(line);
     out += line.trimEnd();
-    if (index < lines.length - 1) out += hardBreak ? '\n' : ' ';
+    if (index < lines.length - 1) out += hardBreak ? "\n" : " ";
   }
   return out;
 }
@@ -40,57 +40,60 @@ export function parse(src: string): Block[] {
     if (block === undefined) break;
 
     switch (block.kind) {
-      case 'blank':
+      case "blank":
         i += 1;
         break;
 
-      case 'fence':
-        blocks.push({ kind: 'code', lang: block.lang, text: block.lines.join('\n') });
+      case "fence":
+        blocks.push({ kind: "code", lang: block.lang, text: block.lines.join("\n") });
         i += 1;
         break;
 
-      case 'heading':
+      case "heading":
         blocks.push({
-          kind: 'heading',
+          kind: "heading",
           level: block.level,
           inline: lexInline(block.text),
         });
         i += 1;
         break;
 
-      case 'quote': {
+      case "quote": {
         const lines: string[] = [];
-        while (raw[i]?.kind === 'quote') {
+        while (raw[i]?.kind === "quote") {
           lines.push((raw[i] as { text: string }).text);
           i += 1;
         }
         const paragraphs = lines
-          .join('\n')
+          .join("\n")
           .split(/\n{2,}/)
-          .filter((p) => p.trim() !== '')
-          .map((p) => lexInline(joinParagraph(p.split('\n'))));
-        blocks.push({ kind: 'quote', paragraphs });
+          .filter((p) => p.trim() !== "")
+          .map((p) => lexInline(joinParagraph(p.split("\n"))));
+        blocks.push({ kind: "quote", paragraphs });
         break;
       }
 
-      case 'item': {
+      case "item": {
         const ordered = block.ordered;
         const items: Inline[][] = [];
-        while (raw[i]?.kind === 'item' && (raw[i] as { ordered: boolean }).ordered === ordered) {
+        while (
+          raw[i]?.kind === "item" &&
+          (raw[i] as { ordered: boolean }).ordered === ordered
+        ) {
           items.push(lexInline((raw[i] as { text: string }).text));
           i += 1;
         }
-        blocks.push({ kind: 'list', ordered, items });
+        blocks.push({ kind: "list", ordered, items });
         break;
       }
 
-      case 'line': {
+      case "line": {
         const lines: string[] = [];
-        while (raw[i]?.kind === 'line') {
+        while (raw[i]?.kind === "line") {
           lines.push((raw[i] as { text: string }).text);
           i += 1;
         }
-        blocks.push({ kind: 'paragraph', inline: lexInline(joinParagraph(lines)) });
+        blocks.push({ kind: "paragraph", inline: lexInline(joinParagraph(lines)) });
         break;
       }
     }

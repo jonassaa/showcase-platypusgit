@@ -4,11 +4,11 @@
 // there is no `test/main.test.ts`: there is nothing here to assert that is not
 // already asserted about `store`, `render` or `keymap`.
 
-import { render } from './markdown/render.ts';
-import { search, segment } from './search.ts';
-import type { Note } from './types.ts';
-import { migrateLegacyKey } from './compat.ts';
-import { fromEvent, resolve } from './keymap.ts';
+import { render } from "./markdown/render.ts";
+import { search, segment } from "./search.ts";
+import type { Note } from "./types.ts";
+import { migrateLegacyKey } from "./compat.ts";
+import { fromEvent, resolve } from "./keymap.ts";
 import {
   activeNote,
   createNote,
@@ -21,12 +21,12 @@ import {
   updateNote,
   type Fixture,
   type StoreState,
-} from './store.ts';
-import { applyTheme, followSystem, nextTheme, preferredTheme } from './theme.ts';
-import type { Mode, ThemeName } from './types.ts';
-import starter from '../fixtures/notes.json';
-import './styles/base.css';
-import './styles/theme.scss';
+} from "./store.ts";
+import { applyTheme, followSystem, nextTheme, preferredTheme } from "./theme.ts";
+import type { Mode, ThemeName } from "./types.ts";
+import starter from "../fixtures/notes.json";
+import "./styles/base.css";
+import "./styles/theme.scss";
 
 interface Ui {
   list: HTMLElement;
@@ -38,8 +38,8 @@ interface Ui {
 }
 
 let state: StoreState = { notes: [], activeId: null };
-let mode: Mode = 'editor';
-let theme: ThemeName = 'light';
+let mode: Mode = "editor";
+let theme: ThemeName = "light";
 let tagFilter: string | null = null;
 
 function el<T extends HTMLElement>(id: string): T {
@@ -57,7 +57,7 @@ function el<T extends HTMLElement>(id: string): T {
 function visibleNotes(ui: Ui): Note[] {
   const query = ui.query.value.trim();
   const base = tagFilter === null ? state.notes : notesWithTag(state, tagFilter);
-  if (query === '') return base;
+  if (query === "") return base;
   const order = new Map(search(base, query).map((h, i) => [h.id, i]));
   return base
     .filter((n) => order.has(n.id))
@@ -69,21 +69,21 @@ function drawList(ui: Ui): void {
   const notes = visibleNotes(ui);
   ui.list.replaceChildren(
     ...notes.map((note) => {
-      const row = document.createElement('button');
-      row.className = note.id === state.activeId ? 'row row--active' : 'row';
-      row.type = 'button';
-      row.dataset['id'] = note.id;
-      const title = document.createElement('span');
-      title.className = 'row__title';
-      const hits = query === '' ? [] : (search([note], query)[0]?.ranges ?? []);
+      const row = document.createElement("button");
+      row.className = note.id === state.activeId ? "row row--active" : "row";
+      row.type = "button";
+      row.dataset["id"] = note.id;
+      const title = document.createElement("span");
+      title.className = "row__title";
+      const hits = query === "" ? [] : (search([note], query)[0]?.ranges ?? []);
       for (const piece of segment(note.title, hits.slice(0, 8))) {
-        const span = document.createElement('span');
+        const span = document.createElement("span");
         span.textContent = piece.text;
-        if (piece.hit) span.className = 'hit';
+        if (piece.hit) span.className = "hit";
         title.append(span);
       }
       row.append(title);
-      row.addEventListener('click', () => {
+      row.addEventListener("click", () => {
         state = { ...state, activeId: note.id };
         commit(ui);
       });
@@ -96,11 +96,11 @@ function drawList(ui: Ui): void {
 function drawTags(ui: Ui): void {
   ui.tags.replaceChildren(
     ...allTags(state).map((tag) => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = tag === tagFilter ? 'chip chip--on' : 'chip';
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = tag === tagFilter ? "chip chip--on" : "chip";
       chip.textContent = `#${tag}`;
-      chip.addEventListener('click', () => {
+      chip.addEventListener("click", () => {
         tagFilter = tagFilter === tag ? null : tag;
         commit(ui);
       });
@@ -111,7 +111,7 @@ function drawTags(ui: Ui): void {
 
 function drawPreview(ui: Ui): void {
   const note = activeNote(state);
-  ui.preview.innerHTML = note === null ? '' : render(note.body);
+  ui.preview.innerHTML = note === null ? "" : render(note.body);
   if (note !== null && ui.editor.value !== note.body) ui.editor.value = note.body;
 }
 
@@ -124,41 +124,41 @@ function commit(ui: Ui): void {
 
 function run(ui: Ui, command: string): boolean {
   switch (command) {
-    case 'note.new':
-      state = createNote(state, '# Untitled\n\n', Date.now());
+    case "note.new":
+      state = createNote(state, "# Untitled\n\n", Date.now());
       ui.editor.focus();
       break;
-    case 'note.delete':
+    case "note.delete":
       if (state.activeId !== null) state = deleteNote(state, state.activeId);
       break;
-    case 'note.save':
+    case "note.save":
       break;
-    case 'theme.toggle':
+    case "theme.toggle":
       theme = nextTheme(theme);
       applyTheme(document.documentElement, theme);
       return true;
 
-    case 'editor.blur':
-      mode = 'list';
+    case "editor.blur":
+      mode = "list";
       ui.list.focus();
       return true;
-    case 'palette.open':
-      mode = 'command';
+    case "palette.open":
+      mode = "command";
       return true;
-    case 'palette.close':
-      mode = 'editor';
+    case "palette.close":
+      mode = "editor";
       ui.editor.focus();
       return true;
-    case 'list.next':
-    case 'list.prev': {
+    case "list.next":
+    case "list.prev": {
       const notes = visibleNotes(ui);
       const at = notes.findIndex((n) => n.id === state.activeId);
-      const step = command === 'list.next' ? 1 : -1;
+      const step = command === "list.next" ? 1 : -1;
       const next = notes[Math.min(Math.max(at + step, 0), notes.length - 1)];
       if (next !== undefined) state = { ...state, activeId: next.id };
       break;
     }
-    case 'search.focus':
+    case "search.focus":
       ui.query.focus();
       ui.query.select();
       return true;
@@ -172,19 +172,19 @@ function run(ui: Ui, command: string): boolean {
 
 function start(): void {
   const ui: Ui = {
-    list: el('list'),
-    tags: el('tags'),
-    editor: el('editor'),
-    preview: el('preview'),
-    query: el('query'),
-    status: el('status'),
+    list: el("list"),
+    tags: el("tags"),
+    editor: el("editor"),
+    preview: el("preview"),
+    query: el("query"),
+    status: el("status"),
   };
 
   migrateLegacyKey(window.localStorage);
   state = loadState(window.localStorage);
   if (state.notes.length === 0) state = fixtureToState(starter as Fixture);
 
-  ui.editor.addEventListener('input', () => {
+  ui.editor.addEventListener("input", () => {
     if (state.activeId === null) return;
     state = updateNote(state, state.activeId, ui.editor.value, Date.now());
     saveState(window.localStorage, state);
@@ -193,11 +193,11 @@ function start(): void {
     drawPreview(ui);
   });
 
-  ui.editor.addEventListener('focus', () => (mode = 'editor'));
-  ui.query.addEventListener('input', () => drawList(ui));
-  ui.query.addEventListener('focus', () => (mode = 'command'));
+  ui.editor.addEventListener("focus", () => (mode = "editor"));
+  ui.query.addEventListener("input", () => drawList(ui));
+  ui.query.addEventListener("focus", () => (mode = "command"));
 
-  window.addEventListener('keydown', (event) => {
+  window.addEventListener("keydown", (event) => {
     const command = resolve(mode, fromEvent(event));
     if (command === null) return;
     if (run(ui, command)) event.preventDefault();

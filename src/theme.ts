@@ -4,34 +4,34 @@
 // anything that has to serialise a theme — an export, a print stylesheet —
 // cannot read a stylesheet it is not shipping.
 
-import type { ThemeName } from './types.ts';
+import type { ThemeName } from "./types.ts";
 
-export const THEMES: readonly ThemeName[] = ['light', 'dark'];
+export const THEMES: readonly ThemeName[] = ["light", "dark"];
 
 const LIGHT: Record<string, string> = {
-  '--bg': '#fbfaf8',
-  '--bg-raised': '#ffffff',
-  '--fg': '#1b1a17',
-  '--fg-muted': '#6b6864',
-  '--border': '#e3dfd8',
-  '--accent': '#8a5a2b',
-  '--hit': '#ffe9a8',
-  '--code-bg': '#f3f0ea',
+  "--bg": "#fbfaf8",
+  "--bg-raised": "#ffffff",
+  "--fg": "#1b1a17",
+  "--fg-muted": "#6b6864",
+  "--border": "#e3dfd8",
+  "--accent": "#8a5a2b",
+  "--hit": "#ffe9a8",
+  "--code-bg": "#f3f0ea",
 };
 
 const DARK: Record<string, string> = {
-  '--bg': '#17181a',
-  '--bg-raised': '#1f2124',
-  '--fg': '#e8e6e1',
-  '--fg-muted': '#9b9791',
-  '--border': '#2e3135',
-  '--accent': '#d3a06a',
-  '--hit': '#5a4a1e',
-  '--code-bg': '#232629',
+  "--bg": "#17181a",
+  "--bg-raised": "#1f2124",
+  "--fg": "#e8e6e1",
+  "--fg-muted": "#9b9791",
+  "--border": "#2e3135",
+  "--accent": "#d3a06a",
+  "--hit": "#5a4a1e",
+  "--code-bg": "#232629",
 };
 
 export function themeTokens(name: ThemeName): Record<string, string> {
-  return name === 'dark' ? { ...DARK } : { ...LIGHT };
+  return name === "dark" ? { ...DARK } : { ...LIGHT };
 }
 
 /**
@@ -41,9 +41,11 @@ export function themeTokens(name: ThemeName): Record<string, string> {
  * `undefined` is what production does, passing a boolean is what a test does.
  */
 export function preferredTheme(matches?: boolean): ThemeName {
-  if (matches !== undefined) return matches ? 'dark' : 'light';
-  if (typeof globalThis.matchMedia !== 'function') return 'light';
-  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (matches !== undefined) return matches ? "dark" : "light";
+  if (typeof globalThis.matchMedia !== "function") return "light";
+  return globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 /**
@@ -53,17 +55,17 @@ export function preferredTheme(matches?: boolean): ThemeName {
  * behind on every reload and the theme starts flickering.
  */
 export function followSystem(onChange: (name: ThemeName) => void): () => void {
-  if (typeof globalThis.matchMedia !== 'function') return () => {};
-  const mq = globalThis.matchMedia('(prefers-color-scheme: dark)');
+  if (typeof globalThis.matchMedia !== "function") return () => {};
+  const mq = globalThis.matchMedia("(prefers-color-scheme: dark)");
   const handler = (event: MediaQueryListEvent): void => {
-    onChange(event.matches ? 'dark' : 'light');
+    onChange(event.matches ? "dark" : "light");
   };
-  mq.addEventListener('change', handler);
-  return () => mq.removeEventListener('change', handler);
+  mq.addEventListener("change", handler);
+  return () => mq.removeEventListener("change", handler);
 }
 
 export function nextTheme(current: ThemeName): ThemeName {
-  return current === 'light' ? 'dark' : 'light';
+  return current === "light" ? "dark" : "light";
 }
 
 /** Write the tokens onto an element, and stamp the name for CSS to read. */
@@ -72,5 +74,5 @@ export function applyTheme(root: HTMLElement, name: ThemeName): void {
   for (const [key, value] of Object.entries(tokens)) {
     root.style.setProperty(key, value);
   }
-  root.dataset['theme'] = name;
+  root.dataset["theme"] = name;
 }

@@ -8,19 +8,19 @@
 
 /** One line, classified. Blank lines survive: paragraphs need them. */
 export type RawBlock =
-  | { kind: 'blank' }
-  | { kind: 'fence'; lang: string; lines: string[] }
-  | { kind: 'heading'; level: number; text: string }
-  | { kind: 'quote'; text: string }
-  | { kind: 'item'; ordered: boolean; text: string }
-  | { kind: 'line'; text: string };
+  | { kind: "blank" }
+  | { kind: "fence"; lang: string; lines: string[] }
+  | { kind: "heading"; level: number; text: string }
+  | { kind: "quote"; text: string }
+  | { kind: "item"; ordered: boolean; text: string }
+  | { kind: "line"; text: string };
 
 export type Inline =
-  | { kind: 'text'; value: string }
-  | { kind: 'code'; value: string }
-  | { kind: 'strong'; value: string }
-  | { kind: 'em'; value: string }
-  | { kind: 'link'; href: string; label: string };
+  | { kind: "text"; value: string }
+  | { kind: "code"; value: string }
+  | { kind: "strong"; value: string }
+  | { kind: "em"; value: string }
+  | { kind: "link"; href: string; label: string };
 
 const HEADING = /^(#{1,6})\s+(.*)$/;
 const QUOTE = /^>\s?(.*)$/;
@@ -37,27 +37,27 @@ const FENCE = /^```\s*([A-Za-z0-9_+-]*)\s*$/;
  */
 export function lexBlocks(src: string): RawBlock[] {
   const out: RawBlock[] = [];
-  const lines = src.split('\n');
+  const lines = src.split("\n");
   let i = 0;
 
   while (i < lines.length) {
-    const line = lines[i] ?? '';
+    const line = lines[i] ?? "";
     const fence = FENCE.exec(line);
     if (fence !== null) {
-      const lang = fence[1] ?? '';
+      const lang = fence[1] ?? "";
       const body: string[] = [];
       i += 1;
-      while (i < lines.length && FENCE.exec(lines[i] ?? '') === null) {
-        body.push(lines[i] ?? '');
+      while (i < lines.length && FENCE.exec(lines[i] ?? "") === null) {
+        body.push(lines[i] ?? "");
         i += 1;
       }
       i += 1; // step over the closing fence, or off the end
-      out.push({ kind: 'fence', lang, lines: body });
+      out.push({ kind: "fence", lang, lines: body });
       continue;
     }
 
-    if (line.trim() === '') {
-      out.push({ kind: 'blank' });
+    if (line.trim() === "") {
+      out.push({ kind: "blank" });
     } else {
       const heading = HEADING.exec(line);
       const quote = QUOTE.exec(line);
@@ -65,18 +65,18 @@ export function lexBlocks(src: string): RawBlock[] {
       const numbered = NUMBER.exec(line);
       if (heading !== null) {
         out.push({
-          kind: 'heading',
-          level: (heading[1] ?? '#').length,
-          text: heading[2] ?? '',
+          kind: "heading",
+          level: (heading[1] ?? "#").length,
+          text: heading[2] ?? "",
         });
       } else if (quote !== null) {
-        out.push({ kind: 'quote', text: quote[1] ?? '' });
+        out.push({ kind: "quote", text: quote[1] ?? "" });
       } else if (bullet !== null) {
-        out.push({ kind: 'item', ordered: false, text: bullet[1] ?? '' });
+        out.push({ kind: "item", ordered: false, text: bullet[1] ?? "" });
       } else if (numbered !== null) {
-        out.push({ kind: 'item', ordered: true, text: numbered[1] ?? '' });
+        out.push({ kind: "item", ordered: true, text: numbered[1] ?? "" });
       } else {
-        out.push({ kind: 'line', text: line });
+        out.push({ kind: "line", text: line });
       }
     }
     i += 1;
@@ -93,12 +93,12 @@ export function lexBlocks(src: string): RawBlock[] {
  */
 export function lexInline(text: string): Inline[] {
   const out: Inline[] = [];
-  let buffer = '';
+  let buffer = "";
 
   const flush = (): void => {
-    if (buffer !== '') {
-      out.push({ kind: 'text', value: buffer });
-      buffer = '';
+    if (buffer !== "") {
+      out.push({ kind: "text", value: buffer });
+      buffer = "";
     }
   };
 
@@ -109,7 +109,7 @@ export function lexInline(text: string): Inline[] {
     const code = /^`([^`]+)`/.exec(rest);
     if (code !== null) {
       flush();
-      out.push({ kind: 'code', value: code[1] ?? '' });
+      out.push({ kind: "code", value: code[1] ?? "" });
       i += code[0].length;
       continue;
     }
@@ -117,7 +117,7 @@ export function lexInline(text: string): Inline[] {
     const strong = /^\*\*([^*]+)\*\*/.exec(rest);
     if (strong !== null) {
       flush();
-      out.push({ kind: 'strong', value: strong[1] ?? '' });
+      out.push({ kind: "strong", value: strong[1] ?? "" });
       i += strong[0].length;
       continue;
     }
@@ -125,7 +125,7 @@ export function lexInline(text: string): Inline[] {
     const em = /^\*([^*]+)\*/.exec(rest);
     if (em !== null) {
       flush();
-      out.push({ kind: 'em', value: em[1] ?? '' });
+      out.push({ kind: "em", value: em[1] ?? "" });
       i += em[0].length;
       continue;
     }
@@ -133,12 +133,12 @@ export function lexInline(text: string): Inline[] {
     const link = /^\[([^\]]*)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)/.exec(rest);
     if (link !== null) {
       flush();
-      out.push({ kind: 'link', label: link[1] ?? '', href: link[2] ?? '' });
+      out.push({ kind: "link", label: link[1] ?? "", href: link[2] ?? "" });
       i += link[0].length;
       continue;
     }
 
-    buffer += text[i] ?? '';
+    buffer += text[i] ?? "";
     i += 1;
   }
 
