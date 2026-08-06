@@ -1,0 +1,21 @@
+[package]
+name = "platypad-lex"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Markdown lexer for platypad, compiled to WebAssembly."
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+
+[profile.release]
+# The whole point of this experiment is whether the wasm is small enough to be
+# worth shipping. opt-level "z" and LTO are the two knobs that decide that.
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
