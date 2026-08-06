@@ -9,6 +9,8 @@ export interface Note {
   body: string;
   /** Epoch milliseconds. Sorting the list is the only thing that reads it. */
   updatedAt: number;
+  /** Derived from the body on every write — never edited directly. */
+  tags: string[];
 }
 
 export type ThemeName = 'light' | 'dark';

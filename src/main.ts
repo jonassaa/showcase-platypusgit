@@ -14,7 +14,9 @@ import {
   createNote,
   deleteNote,
   fixtureToState,
+  allTags,
   loadState,
+  notesWithTag,
   saveState,
   updateNote,
   type Fixture,
@@ -28,6 +30,7 @@ import './styles/theme.scss';
 
 interface Ui {
   list: HTMLElement;
+  tags: HTMLElement;
   editor: HTMLTextAreaElement;
   preview: HTMLElement;
   query: HTMLInputElement;
@@ -37,6 +40,7 @@ interface Ui {
 let state: StoreState = { notes: [], activeId: null };
 let mode: Mode = 'editor';
 let theme: ThemeName = 'light';
+let tagFilter: string | null = null;
 
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -44,12 +48,18 @@ function el<T extends HTMLElement>(id: string): T {
   return node as T;
 }
 
-/** The notes the list should show, in the order it should show them. */
+/**
+ * The notes the list should show, in the order it should show them.
+ *
+ * The tag filter narrows first and the query ranks second. The other way round
+ * would rank notes the filter is about to throw away.
+ */
 function visibleNotes(ui: Ui): Note[] {
   const query = ui.query.value.trim();
-  if (query === '') return state.notes;
-  const order = new Map(search(state.notes, query).map((h, i) => [h.id, i]));
-  return state.notes
+  const base = tagFilter === null ? state.notes : notesWithTag(state, tagFilter);
+  if (query === '') return base;
+  const order = new Map(search(base, query).map((h, i) => [h.id, i]));
+  return base
     .filter((n) => order.has(n.id))
     .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }
@@ -83,6 +93,22 @@ function drawList(ui: Ui): void {
   ui.status.textContent = `${notes.length} of ${state.notes.length} notes`;
 }
 
+function drawTags(ui: Ui): void {
+  ui.tags.replaceChildren(
+    ...allTags(state).map((tag) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = tag === tagFilter ? 'chip chip--on' : 'chip';
+      chip.textContent = `#${tag}`;
+      chip.addEventListener('click', () => {
+        tagFilter = tagFilter === tag ? null : tag;
+        commit(ui);
+      });
+      return chip;
+    }),
+  );
+}
+
 function drawPreview(ui: Ui): void {
   const note = activeNote(state);
   ui.preview.innerHTML = note === null ? '' : render(note.body);
@@ -92,6 +118,7 @@ function drawPreview(ui: Ui): void {
 function commit(ui: Ui): void {
   saveState(window.localStorage, state);
   drawList(ui);
+  drawTags(ui);
   drawPreview(ui);
 }
 
@@ -146,6 +173,7 @@ function run(ui: Ui, command: string): boolean {
 function start(): void {
   const ui: Ui = {
     list: el('list'),
+    tags: el('tags'),
     editor: el('editor'),
     preview: el('preview'),
     query: el('query'),
@@ -160,6 +188,7 @@ function start(): void {
     if (state.activeId === null) return;
     state = updateNote(state, state.activeId, ui.editor.value, Date.now());
     saveState(window.localStorage, state);
+    drawTags(ui);
     drawList(ui);
     drawPreview(ui);
   });
