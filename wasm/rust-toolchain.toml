@@ -1,0 +1,7 @@
+# Pinned so the wasm this branch produces is comparable between machines. An
+# experiment whose numbers depend on whoever ran it is not an experiment.
+[toolchain]
+channel = "1.84.0"
+targets = ["wasm32-unknown-unknown"]
+components = ["rustfmt", "clippy"]
+profile = "minimal"
