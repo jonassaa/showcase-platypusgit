@@ -86,3 +86,75 @@ pub fn lex_inline(input: &str) -> Vec<Span> {
     }
     out
 }
+
+/// A classified line.
+#[repr(u8)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Block {
+    Blank = 0,
+    Heading = 1,
+    Item = 2,
+    Quote = 3,
+    Fence = 4,
+    Line = 5,
+}
+
+/// Classify one line. Byte-wise on purpose: every marker markdown cares about
+/// is ASCII, so there is no reason to decode UTF-8 to find them.
+pub fn classify(line: &str) -> (Block, u8) {
+    let b = line.as_bytes();
+    let first = b.iter().position(|c| *c != b' ' && *c != b'\t');
+    let Some(start) = first else {
+        return (Block::Blank, 0);
+    };
+
+    match b[start] {
+        b'#' => {
+            let level = b[start..].iter().take_while(|c| **c == b'#').count();
+            if level <= 6 && b.get(start + level) == Some(&b' ') {
+                (Block::Heading, level as u8)
+            } else {
+                (Block::Line, 0)
+            }
+        }
+        b'>' => (Block::Quote, 0),
+        b'-' | b'*' if b.get(start + 1) == Some(&b' ') => (Block::Item, 0),
+        b'0'..=b'9' => {
+            let digits = b[start..].iter().take_while(|c| c.is_ascii_digit()).count();
+            match b.get(start + digits) {
+                Some(b'.') | Some(b')') => (Block::Item, 1),
+                _ => (Block::Line, 0),
+            }
+        }
+        b'`' if b[start..].starts_with(b"```") => (Block::Fence, 0),
+        _ => (Block::Line, 0),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn code_span_beats_emphasis() {
+        let spans = lex_inline("`**not bold**`");
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0].kind, Kind::Code);
+    }
+
+    #[test]
+    fn classifies_the_markers_we_care_about() {
+        assert_eq!(classify("").0, Block::Blank);
+        assert_eq!(classify("## two"), (Block::Heading, 2));
+        assert_eq!(classify("- a").0, Block::Item);
+        assert_eq!(classify("1. a"), (Block::Item, 1));
+        assert_eq!(classify("> q").0, Block::Quote);
+        assert_eq!(classify("```ts").0, Block::Fence);
+        assert_eq!(classify("plain").0, Block::Line);
+    }
+
+    #[test]
+    fn a_hash_without_a_space_is_not_a_heading() {
+        assert_eq!(classify("#tag").0, Block::Line);
+    }
+}
