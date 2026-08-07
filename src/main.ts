@@ -5,6 +5,8 @@
 // already asserted about `store`, `render` or `keymap`.
 
 import { render } from "./markdown/render.ts";
+import { setInlineBackend } from "./markdown/lex.ts";
+import { loadWasmLexer } from "./markdown/wasm.ts";
 import { search, segment } from "./search.ts";
 import type { Note } from "./types.ts";
 import { migrateLegacyKey } from "./compat.ts";
@@ -196,6 +198,14 @@ function start(): void {
   ui.editor.addEventListener("focus", () => (mode = "editor"));
   ui.query.addEventListener("input", () => drawList(ui));
   ui.query.addEventListener("focus", () => (mode = "command"));
+
+  // Opportunistic: if the wasm lexer is there, swap it in and repaint. If it is
+  // not, nothing happens and nobody notices.
+  void loadWasmLexer().then((lexer) => {
+    if (lexer === null) return;
+    setInlineBackend(lexer);
+    drawPreview(ui);
+  });
 
   window.addEventListener("keydown", (event) => {
     const command = resolve(mode, fromEvent(event));

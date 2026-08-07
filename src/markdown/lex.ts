@@ -15,6 +15,19 @@ export type RawBlock =
   | { kind: "item"; ordered: boolean; text: string }
   | { kind: "line"; text: string };
 
+/**
+ * A drop-in replacement for `lexInline`, if one has been installed.
+ *
+ * experiment/wasm-parser sets this from `wasm.ts` once the artifact has
+ * loaded. Nothing else may touch it: a second writer would make which lexer
+ * ran depend on module evaluation order.
+ */
+let backend: ((text: string) => Inline[]) | null = null;
+
+export function setInlineBackend(fn: ((text: string) => Inline[]) | null): void {
+  backend = fn;
+}
+
 export type Inline =
   | { kind: "text"; value: string }
   | { kind: "code"; value: string }
@@ -92,6 +105,7 @@ export function lexBlocks(src: string): RawBlock[] {
  * notice when a renderer gets it wrong.
  */
 export function lexInline(text: string): Inline[] {
+  if (backend !== null) return backend(text);
   const out: Inline[] = [];
   let buffer = "";
 
