@@ -1,0 +1,8 @@
+# Commits worth skipping when blaming a line. platypusgit only shows the
+# ignore-revs toggle at all when blame.ignoreRevsFile is configured, which is
+# what tools/showcase/setup-local.sh does.
+#
+# Add a commit here when it touched every line and meant none of it.
+
+# style: reformat every source file with prettier
+8cacf426055907296e013bea9ddf7b8c6fe70573
