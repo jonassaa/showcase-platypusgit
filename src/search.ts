@@ -1,17 +1,20 @@
 // Substring search over note bodies, and the spans the list view highlights.
 //
-// Two passes on purpose. `highlightRanges` answers "where does this query appear
-// in this text", and knows nothing about notes; `scoreNote` answers "how well
-// does this note match", and knows nothing about rendering.
+// Two passes on purpose. `highlightRanges` answers "where does this query
+// appear in this text", and knows nothing about notes; `scoreNote` answers "how
+// well does this note match", and knows nothing about rendering. Keeping them
+// apart is what made the offset regression (see git log for src/search.ts)
+// a one-line fix rather than a rewrite.
 
 import type { Note, Range, SearchHit } from "./types.ts";
 
 /**
  * Every occurrence of `query` in `text`, case-insensitively.
  *
- * The haystack is lowercased once up front instead of once per match. For a
- * note of any size that is the difference between one allocation and one per
- * hit, and search runs on every keystroke.
+ * The haystack is lowercased once up front rather than per match — for a note
+ * of any size that is the difference between one allocation and one per hit.
+ * The offsets returned are into the ORIGINAL text, which is the whole reason
+ * `from` has to be carried into the pushed range.
  */
 export function highlightRanges(text: string, query: string): Range[] {
   const out: Range[] = [];
@@ -23,7 +26,7 @@ export function highlightRanges(text: string, query: string): Range[] {
   for (;;) {
     const rel = hay.slice(from).indexOf(needle);
     if (rel === -1) break;
-    out.push({ start: rel, end: rel + needle.length });
+    out.push({ start: from + rel, end: from + rel + needle.length });
     from += rel + needle.length;
   }
   return out;

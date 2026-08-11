@@ -23,6 +23,23 @@ describe("highlightRanges", () => {
   it("finds a single-character query", () => {
     expect(highlightRanges("aba", "b")).toEqual([{ start: 1, end: 2 }]);
   });
+
+  // The regression that survived two releases: offsets after the first match
+  // were reported relative to the slice, not to the original text.
+  it("reports every match at its offset in the original text", () => {
+    expect(highlightRanges("otter otter otter", "otter")).toEqual([
+      { start: 0, end: 5 },
+      { start: 6, end: 11 },
+      { start: 12, end: 17 },
+    ]);
+  });
+
+  it("does not overlap matches that share a prefix", () => {
+    expect(highlightRanges("aaaa", "aa")).toEqual([
+      { start: 0, end: 2 },
+      { start: 2, end: 4 },
+    ]);
+  });
 });
 
 describe("scoreNote", () => {
@@ -34,6 +51,12 @@ describe("scoreNote", () => {
 
   it("scores a miss as zero", () => {
     expect(scoreNote(note("a", "otter", "otter"), "platypus")).toBe(0);
+  });
+
+  it("caps how far repetition in the body can carry a note", () => {
+    const many = note("a", "x", "otter ".repeat(40));
+    const few = note("b", "x", "otter otter");
+    expect(scoreNote(many, "otter") - scoreNote(few, "otter")).toBeLessThanOrEqual(3);
   });
 });
 
@@ -55,9 +78,10 @@ describe("search", () => {
 });
 
 describe("segment", () => {
-  it("splits around a match", () => {
-    expect(segment("an otter", highlightRanges("an otter", "otter"))).toEqual([
-      { text: "an ", hit: false },
+  it("alternates plain and matched pieces", () => {
+    expect(segment("otter otter", highlightRanges("otter otter", "otter"))).toEqual([
+      { text: "otter", hit: true },
+      { text: " ", hit: false },
       { text: "otter", hit: true },
     ]);
   });
