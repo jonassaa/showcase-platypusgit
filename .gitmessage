@@ -1,0 +1,16 @@
+
+# <type>(<scope>): <subject>            <- 72 chars max, imperative, no full stop
+#
+# Types: feat fix docs style refactor perf test chore build ci revert
+#
+# Body: what changed and why, wrapped at 72. The subject says what; the body is
+# for the reasoning that will not be obvious in six months. Markdown works here
+# — bullets, `code`, **strong**, fenced blocks, links — and platypusgit renders
+# it in the commit panel.
+#
+# Reference issues as a bare `#123`. Do NOT write "fixes #123" unless you mean
+# it: a closing keyword on the default branch closes the issue for real.
+#
+# Trailers, last, one per line:
+#   Co-authored-by: Name <email>
+#   Signed-off-by: Name <email>

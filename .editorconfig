@@ -1,0 +1,22 @@
+# Two spaces everywhere, because Prettier is the arbiter for everything it
+# handles and there is no reason for the files it does not handle to disagree.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+# Two trailing spaces are a hard break in markdown; trimming them silently
+# rewrites the document.
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
+
+[*.{png,svg}]
+insert_final_newline = false

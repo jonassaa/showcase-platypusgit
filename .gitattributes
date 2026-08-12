@@ -1,0 +1,14 @@
+# Normalise line endings on the way in, so a Windows clone does not turn every
+# file into a diff.
+* text=auto eol=lf
+
+*.png binary
+*.ps1 text eol=crlf
+
+# The lockfile and the generated fixture are noise in a review. They still diff
+# — `linguist-generated` only collapses them by default on the forge.
+pnpm-lock.yaml linguist-generated=true
+fixtures/notes.json linguist-generated=true
+
+# Nothing below the showcase tooling belongs in the language statistics.
+tools/showcase/** linguist-vendored=true

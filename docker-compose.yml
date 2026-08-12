@@ -1,0 +1,26 @@
+services:
+  dev:
+    build: .
+    command: pnpm dev --host 0.0.0.0
+    ports:
+      - "5173:5173"
+    volumes:
+      # Bind-mount the source, but keep the container's node_modules: the host's
+      # are built for the host's libc and will not run on alpine.
+      - .:/app
+      - node_modules:/app/node_modules
+    environment:
+      # Bind mounts over some filesystems do not deliver inotify events.
+      CHOKIDAR_USEPOLLING: "1"
+
+  test:
+    build: .
+    command: pnpm test
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    profiles:
+      - ci
+
+volumes:
+  node_modules:
