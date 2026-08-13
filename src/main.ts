@@ -23,6 +23,7 @@ import {
   type StoreState,
 } from "./store.ts";
 import { applyTheme, followSystem, nextTheme, preferredTheme } from "./theme.ts";
+import { emptyRing, record, redo, undo, type Ring } from "./undo.ts";
 import type { Mode, ThemeName } from "./types.ts";
 import starter from "../fixtures/notes.json";
 import "./styles/base.css";
@@ -41,6 +42,7 @@ let state: StoreState = { notes: [], activeId: null };
 let mode: Mode = "editor";
 let theme: ThemeName = "light";
 let tagFilter: string | null = null;
+let ring: Ring = emptyRing();
 
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -158,6 +160,24 @@ function run(ui: Ui, command: string): boolean {
       if (next !== undefined) state = { ...state, activeId: next.id };
       break;
     }
+    case "edit.undo": {
+      const step = undo(ring);
+      ring = step.ring;
+      if (step.entry !== null && state.activeId !== null) {
+        state = updateNote(state, state.activeId, step.entry.body, Date.now());
+        ui.editor.value = step.entry.body;
+      }
+      break;
+    }
+    case "edit.redo": {
+      const step = redo(ring);
+      ring = step.ring;
+      if (step.entry !== null && state.activeId !== null) {
+        state = updateNote(state, state.activeId, step.entry.body, Date.now());
+        ui.editor.value = step.entry.body;
+      }
+      break;
+    }
     case "search.focus":
       ui.query.focus();
       ui.query.select();
@@ -186,6 +206,11 @@ function start(): void {
 
   ui.editor.addEventListener("input", () => {
     if (state.activeId === null) return;
+    ring = record(ring, {
+      noteId: state.activeId,
+      body: ui.editor.value,
+      at: Date.now(),
+    });
     state = updateNote(state, state.activeId, ui.editor.value, Date.now());
     saveState(window.localStorage, state);
     drawTags(ui);

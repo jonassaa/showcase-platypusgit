@@ -47,6 +47,10 @@ export function resolve(mode: Mode, chord: Chord): string | null {
       return mode === "list" ? "note.delete" : null;
     case "Mod+Shift+L":
       return "theme.toggle";
+    case "Mod+Z":
+      return mode === "editor" ? "edit.undo" : null;
+    case "Mod+Shift+Z":
+      return mode === "editor" ? "edit.redo" : null;
     case "Escape":
       // Every mode that can trap focus needs a way out of it. Handling only the
       // editor left the command bar with no exit but the mouse.
