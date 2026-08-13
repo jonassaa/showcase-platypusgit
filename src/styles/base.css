@@ -1,144 +1,144 @@
 /* Layout only. Every colour comes from a token; the token values arrive with the
-	 theme work. Until then the fallbacks in var() are the whole palette. */
+   theme work. Until then the fallbacks in var() are the whole palette. */
 
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-	margin: 0;
-	background: var(--bg, #fbfaf8);
-	color: var(--fg, #1b1a17);
-	font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  background: var(--bg, #fbfaf8);
+  color: var(--fg, #1b1a17);
+  font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 .bar {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 8px 12px;
-	background: var(--bg-raised, #ffffff);
-	border-bottom: 1px solid var(--border, #e3dfd8);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-raised, #ffffff);
+  border-bottom: 1px solid var(--border, #e3dfd8);
 }
 
 .bar__logo {
-	flex: none;
+  flex: none;
 }
 
 .bar__query {
-	flex: 1 1 auto;
-	min-width: 0;
-	padding: 6px 10px;
-	border: 1px solid var(--border, #e3dfd8);
-	border-radius: 6px;
-	background: var(--bg, #fbfaf8);
-	color: inherit;
-	font: inherit;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--border, #e3dfd8);
+  border-radius: 6px;
+  background: var(--bg, #fbfaf8);
+  color: inherit;
+  font: inherit;
 }
 
 .bar__status {
-	flex: none;
-	color: var(--fg-muted, #6b6864);
-	font-variant-numeric: tabular-nums;
+  flex: none;
+  color: var(--fg-muted, #6b6864);
+  font-variant-numeric: tabular-nums;
 }
 
 .grid {
-	display: grid;
-	grid-template-columns: 220px 1fr 1fr;
-	height: calc(100vh - 45px);
+  display: grid;
+  grid-template-columns: 220px 1fr 1fr;
+  height: calc(100vh - 45px);
 }
 
 .pane {
-	min-width: 0;
-	overflow: auto;
+  min-width: 0;
+  overflow: auto;
 }
 
 .pane--list {
-	border-right: 1px solid var(--border, #e3dfd8);
-	background: var(--bg-raised, #ffffff);
+  border-right: 1px solid var(--border, #e3dfd8);
+  background: var(--bg-raised, #ffffff);
 }
 
 .pane--editor {
-	border-right: 1px solid var(--border, #e3dfd8);
+  border-right: 1px solid var(--border, #e3dfd8);
 }
 
 .tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px;
-	padding: 8px;
-	border-bottom: 1px solid var(--border, #e3dfd8);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--border, #e3dfd8);
 }
 
 .chip {
-	padding: 2px 8px;
-	border: 1px solid var(--border, #e3dfd8);
-	border-radius: 999px;
-	background: transparent;
-	color: var(--fg-muted, #6b6864);
-	font: inherit;
-	font-size: 12px;
-	cursor: pointer;
+  padding: 2px 8px;
+  border: 1px solid var(--border, #e3dfd8);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted, #6b6864);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .chip--on {
-	border-color: var(--accent, #8a5a2b);
-	color: var(--accent, #8a5a2b);
+  border-color: var(--accent, #8a5a2b);
+  color: var(--accent, #8a5a2b);
 }
 
 .list {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .row {
-	padding: 8px 10px;
-	border: 0;
-	border-bottom: 1px solid var(--border, #e3dfd8);
-	background: transparent;
-	color: inherit;
-	font: inherit;
-	text-align: left;
-	cursor: pointer;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--border, #e3dfd8);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .row--active {
-	background: var(--bg, #fbfaf8);
-	box-shadow: inset 2px 0 0 var(--accent, #8a5a2b);
+  background: var(--bg, #fbfaf8);
+  box-shadow: inset 2px 0 0 var(--accent, #8a5a2b);
 }
 
 .row__title {
-	display: block;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .hit {
-	border-radius: 2px;
-	background: var(--hit, #ffe9a8);
+  border-radius: 2px;
+  background: var(--hit, #ffe9a8);
 }
 
 .editor {
-	display: block;
-	width: 100%;
-	height: 100%;
-	padding: 16px;
-	border: 0;
-	background: var(--bg, #fbfaf8);
-	color: inherit;
-	font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
-	resize: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border: 0;
+  background: var(--bg, #fbfaf8);
+  color: inherit;
+  font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+  resize: none;
 }
 
 .editor:focus {
-	outline: 0;
+  outline: 0;
 }
 
 .preview {
-	padding: 16px 20px;
+  padding: 16px 20px;
 }
 
 .preview :first-child {
-	margin-top: 0;
+  margin-top: 0;
 }
