@@ -21,15 +21,31 @@ export function emptyRing(limit = 100): Ring {
   return { entries: [], cursor: -1, limit };
 }
 
+/** Edits closer together than this are one edit. */
+export const COALESCE_MS = 400;
+
 /**
  * Record a state.
  *
  * Anything above the cursor is dropped: once you undo and then type, the branch
  * you undid is gone. That is what every editor does, and the alternative is a
  * tree nobody asked for.
+ *
+ * Consecutive edits to the same note within COALESCE_MS replace each other
+ * rather than stacking. Without that, one undo walks back one keystroke and
+ * undoing a sentence takes a sentence's worth of presses.
  */
 export function record(ring: Ring, entry: Entry): Ring {
   const kept = ring.entries.slice(0, ring.cursor + 1);
+  const last = kept[kept.length - 1];
+  if (
+    last !== undefined &&
+    last.noteId === entry.noteId &&
+    entry.at - last.at < COALESCE_MS
+  ) {
+    kept[kept.length - 1] = entry;
+    return { ...ring, entries: kept, cursor: kept.length - 1 };
+  }
   kept.push(entry);
   return { ...ring, entries: kept, cursor: kept.length - 1 };
 }
