@@ -1,43 +1,219 @@
 {
-  "activeId": "n02",
+  "activeId": "n09",
   "notes": [
     {
+      "id": "n09",
+      "title": "Scratch",
+      "tags": [
+        "scratch"
+      ],
+      "updatedAt": 1753200000000,
+      "body": [
+        "# Scratch",
+        "",
+        "Half-finished thoughts go here so they stop occupying a real note.",
+        "",
+        "- a word count in the status bar would be four lines of code",
+        "- the search field should probably remember its last query",
+        "- `Mod+Shift+L` for the theme is muscle memory from somewhere else",
+        "",
+        "#scratch"
+      ]
+    },
+    {
+      "id": "n08",
+      "title": "Meeting notes, Thursday",
+      "tags": [
+        "meeting",
+        "editor"
+      ],
+      "updatedAt": 1753196400000,
+      "body": [
+        "# Meeting notes, Thursday",
+        "",
+        "Agreed: the undo ring stores patches rather than whole-document copies.",
+        "A 40k-character note copied on every keystroke was the thing making the",
+        "editor feel heavy on long documents.",
+        "",
+        "Open question, still: whether selection belongs in the undo entry or",
+        "beside it. Recording it makes undo restore the cursor, which is what",
+        "people expect; it also makes every entry bigger.",
+        "",
+        "#meeting #editor"
+      ]
+    },
+    {
+      "id": "n07",
+      "title": "Theme tokens",
+      "tags": [
+        "theming",
+        "docs"
+      ],
+      "updatedAt": 1753192800000,
+      "body": [
+        "# Theme tokens",
+        "",
+        "Colours live in `src/theme.ts`, not only in the stylesheet, because the",
+        "HTML export has to inline them into a standalone file and cannot read a",
+        "stylesheet that is not there.",
+        "",
+        "- `--bg`, `--bg-raised` — surfaces",
+        "- `--fg`, `--fg-muted` — text",
+        "- `--accent` — the one saturated colour",
+        "- `--hit` — search highlight",
+        "",
+        "#theming #docs"
+      ]
+    },
+    {
+      "id": "n06",
+      "title": "Why no framework",
+      "tags": [
+        "architecture",
+        "docs"
+      ],
+      "updatedAt": 1753189200000,
+      "body": [
+        "# Why no framework",
+        "",
+        "The whole app is a textarea, a list and a preview pane. A framework",
+        "would add a build step's worth of indirection between a keystroke and",
+        "the DOM, and there is no state here that a plain object cannot hold.",
+        "",
+        "The rule that keeps it honest: every module except `main.ts` is pure",
+        "and testable in node. The moment that stops being true, the",
+        "no-framework argument has stopped being true too. #architecture #docs"
+      ]
+    },
+    {
+      "id": "n05",
+      "title": "Release checklist",
+      "tags": [
+        "release",
+        "checklist"
+      ],
+      "updatedAt": 1753185600000,
+      "body": [
+        "# Release checklist",
+        "",
+        "1. `pnpm test` green on a clean tree",
+        "2. `pnpm build` produces a bundle that opens from `file://`",
+        "3. `CHANGELOG.md` has an entry with today's date",
+        "4. Tag is annotated, not lightweight",
+        "5. Release notes come from the changelog, not from the commit log",
+        "",
+        "> Step 2 is the one that catches absolute asset paths, every time.",
+        "",
+        "#release #checklist"
+      ]
+    },
+    {
+      "id": "n04",
+      "title": "Groceries",
+      "tags": [
+        "errands"
+      ],
+      "updatedAt": 1753182000000,
+      "body": [
+        "# Groceries",
+        "",
+        "- oat milk",
+        "- coffee, the darker bag",
+        "- bread flour",
+        "- something green",
+        "",
+        "The list is deliberately vague on the last one. #errands"
+      ]
+    },
+    {
+      "id": "n03",
+      "title": "Reading list",
+      "tags": [
+        "reading",
+        "later"
+      ],
+      "updatedAt": 1753178400000,
+      "body": [
+        "# Reading list",
+        "",
+        "- *The Design of Everyday Things* — still the shortest route to",
+        "  understanding why the affordance matters more than the label",
+        "- *Thinking in Systems* — for the chapter on leverage points alone",
+        "- *A Philosophy of Software Design* — deep modules, shallow interfaces",
+        "",
+        "Half of these are re-reads. #reading #later"
+      ]
+    },
+    {
       "id": "n02",
-      "title": "Keyboard first",
-      "tags": [],
+      "title": "Markdown, the useful third of it",
+      "tags": [
+        "markdown",
+        "docs"
+      ],
       "updatedAt": 1753174800000,
       "body": [
-        "# Keyboard first",
+        "# Markdown, the useful third of it",
         "",
-        "`Mod+N` starts a note. `Mod+Backspace` deletes the selected one. Arrow",
-        "keys move the selection while the list has focus, and `Escape` hands",
-        "focus back to it from the editor."
+        "platypad renders the subset people actually type: paragraphs joined",
+        "across hard-wrapped lines, `code`, **strong**, *emphasis*, links,",
+        "bullet and numbered lists, blockquotes and fenced blocks.",
+        "",
+        "```ts",
+        "import { render } from \"./markdown/render\";",
+        "",
+        "const html = render(\"# hello\");",
+        "```",
+        "",
+        "Anything outside that subset is shown as the literal text you typed,",
+        "which is a better answer than a half-rendered table. #markdown #docs"
       ]
     },
     {
       "id": "n01",
-      "title": "Markdown, the useful third of it",
-      "tags": [],
+      "title": "Keyboard first",
+      "tags": [
+        "keyboard",
+        "docs"
+      ],
       "updatedAt": 1753171200000,
       "body": [
-        "# Markdown, the useful third of it",
+        "# Keyboard first",
         "",
-        "Headings, paragraphs, bullets, `code`, **strong** and *emphasis* render",
-        "live in the right-hand pane. Anything else is shown as the literal text",
-        "you typed, which is a better answer than a half-rendered table."
+        "Every command has a binding and every binding is listed in",
+        "`docs/keybindings.md`, which is checked against `src/keymap.ts` rather",
+        "than written by hand.",
+        "",
+        "1. Press `Mod+K`",
+        "2. Type the first few letters of a command",
+        "3. Press Enter",
+        "",
+        "> If a chord resolves to nothing, the browser keeps the event. That is",
+        "> why typing an asterisk in the editor does not open anything.",
+        "",
+        "#keyboard #docs"
       ]
     },
     {
       "id": "n00",
       "title": "Welcome to platypad",
-      "tags": [],
+      "tags": [
+        "welcome",
+        "docs"
+      ],
       "updatedAt": 1753167600000,
       "body": [
         "# Welcome to platypad",
         "",
         "Everything you type stays in this browser. There is no account, no sync",
         "and no server — closing the tab is the only save button that matters,",
-        "and it is pressed for you."
+        "and it is pressed for you.",
+        "",
+        "- `Mod+K` opens the command bar",
+        "- `Mod+N` starts a note, `Mod+F` searches them",
+        "- `#tags` anywhere in a body become filters in the sidebar",
+        "",
+        "The preview on the right is live. #welcome #docs"
       ]
     }
   ]
