@@ -2,28 +2,26 @@
 //
 // Everything it calls is a pure function living somewhere else, which is why
 // there is no `test/main.test.ts`: there is nothing here to assert that is not
-// already asserted about `store`, `render` or `keymap`.
+// already asserted about `store`, `search`, `keymap`, `theme` or `markdown`.
 
 import { render } from "./markdown/render.ts";
 import { search, segment } from "./search.ts";
-import type { Note } from "./types.ts";
-import { migrateLegacyKey } from "./compat.ts";
+import { applyTheme, followSystem, nextTheme, preferredTheme } from "./theme.ts";
 import { fromEvent, resolve } from "./keymap.ts";
 import {
   activeNote,
-  createNote,
-  deleteNote,
   fixtureToState,
   allTags,
+  createNote,
+  deleteNote,
   loadState,
   notesWithTag,
   saveState,
   updateNote,
-  type Fixture,
   type StoreState,
 } from "./store.ts";
-import { applyTheme, followSystem, nextTheme, preferredTheme } from "./theme.ts";
-import type { Mode, ThemeName } from "./types.ts";
+import type { Fixture } from "./store.ts";
+import type { Mode, Note, ThemeName } from "./types.ts";
 import starter from "../fixtures/notes.json";
 import "./styles/base.css";
 import "./styles/theme.scss";
@@ -48,12 +46,6 @@ function el<T extends HTMLElement>(id: string): T {
   return node as T;
 }
 
-/**
- * The notes the list should show, in the order it should show them.
- *
- * The tag filter narrows first and the query ranks second. The other way round
- * would rank notes the filter is about to throw away.
- */
 function visibleNotes(ui: Ui): Note[] {
   const query = ui.query.value.trim();
   const base = tagFilter === null ? state.notes : notesWithTag(state, tagFilter);
@@ -133,17 +125,21 @@ function run(ui: Ui, command: string): boolean {
       break;
     case "note.save":
       break;
+    case "search.focus":
+      ui.query.focus();
+      ui.query.select();
+      return true;
     case "theme.toggle":
       theme = nextTheme(theme);
       applyTheme(document.documentElement, theme);
       return true;
-
     case "editor.blur":
       mode = "list";
       ui.list.focus();
       return true;
     case "palette.open":
       mode = "command";
+      ui.query.focus();
       return true;
     case "palette.close":
       mode = "editor";
@@ -158,11 +154,6 @@ function run(ui: Ui, command: string): boolean {
       if (next !== undefined) state = { ...state, activeId: next.id };
       break;
     }
-    case "search.focus":
-      ui.query.focus();
-      ui.query.select();
-      return true;
-
     default:
       return false;
   }
@@ -180,7 +171,6 @@ function start(): void {
     status: el("status"),
   };
 
-  migrateLegacyKey(window.localStorage);
   state = loadState(window.localStorage);
   if (state.notes.length === 0) state = fixtureToState(starter as Fixture);
 
@@ -189,12 +179,12 @@ function start(): void {
     state = updateNote(state, state.activeId, ui.editor.value, Date.now());
     saveState(window.localStorage, state);
     drawTags(ui);
-    drawList(ui);
     drawPreview(ui);
+    drawList(ui);
   });
 
-  ui.editor.addEventListener("focus", () => (mode = "editor"));
   ui.query.addEventListener("input", () => drawList(ui));
+  ui.editor.addEventListener("focus", () => (mode = "editor"));
   ui.query.addEventListener("focus", () => (mode = "command"));
 
   window.addEventListener("keydown", (event) => {
