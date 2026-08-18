@@ -1,0 +1,4 @@
+[submodule "themes"]
+	path = themes
+	url = https://github.com/jonassaa/platypad-themes.git
+	branch = main
