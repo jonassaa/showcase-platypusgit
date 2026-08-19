@@ -8,6 +8,13 @@ export interface Entry {
   noteId: string;
   body: string;
   at: number;
+  /**
+   * Where the caret was. Optional while this is being worked out: recording it
+   * makes undo restore the cursor, which is what people expect, and also makes
+   * every entry bigger. Not yet decided whether it belongs in the entry or
+   * beside it.
+   */
+  selection?: { start: number; end: number };
 }
 
 export interface Ring {
