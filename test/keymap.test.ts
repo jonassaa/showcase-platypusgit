@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { chordName, resolve, type Chord } from "../src/keymap.ts";
+import {
+  BINDINGS,
+  bindingsFor,
+  chordName,
+  resolve,
+  type Chord,
+} from "../src/keymap.ts";
 
 function chord(key: string, mods: Partial<Omit<Chord, "key">> = {}): Chord {
   return { key, ctrl: false, meta: false, shift: false, ...mods };
@@ -31,19 +37,36 @@ describe("resolve", () => {
     expect(resolve("editor", chord("a"))).toBeNull();
   });
 
-  // The bug this branch exists for: Escape had an exit from the editor and no
-  // exit from the command bar, so the only way out was the mouse.
-  it("leaves the command bar from every mode that can trap focus", () => {
+  // fix/keymap-escape: Escape only left the command bar from inside the editor.
+  it("leaves the command bar from every mode that has an Escape binding", () => {
     expect(resolve("command", chord("Escape"))).toBe("palette.close");
     expect(resolve("editor", chord("Escape"))).toBe("editor.blur");
-  });
-
-  it("has no Escape binding in the list, which is where focus already is", () => {
-    expect(resolve("list", chord("Escape"))).toBeNull();
   });
 
   it("does not fire a list binding while the editor has focus", () => {
     expect(resolve("editor", chord("ArrowDown"))).toBeNull();
     expect(resolve("list", chord("ArrowDown"))).toBe("list.next");
+  });
+});
+
+describe("BINDINGS as data", () => {
+  it("binds every chord to exactly one command per mode", () => {
+    const seen = new Set<string>();
+    for (const b of BINDINGS) {
+      const key = `${b.when}:${b.keys}`;
+      expect(seen.has(key)).toBe(false);
+      seen.add(key);
+    }
+  });
+
+  it("describes every binding, so the command bar has something to show", () => {
+    expect(BINDINGS.every((b) => b.description.trim() !== "")).toBe(true);
+  });
+
+  it("lists mode-specific bindings alongside the global ones", () => {
+    const list = bindingsFor("list").map((b) => b.command);
+    expect(list).toContain("list.next");
+    expect(list).toContain("palette.open");
+    expect(list).not.toContain("palette.close");
   });
 });

@@ -1,7 +1,9 @@
-// Key bindings.
+// Key bindings, as a table.
 //
-// A chord resolves against a mode, so the same key can mean different things in
-// the editor and in the list without either caller knowing about the other.
+// This was a switch statement until the export and undo work both needed to add
+// bindings to it and kept colliding. A table has one property the switch did
+// not: `BINDINGS` is data, so the command bar can list every binding without a
+// second source of truth to keep in step.
 
 import type { Mode } from "./types.ts";
 
@@ -12,6 +14,56 @@ export interface Chord {
   meta: boolean;
   shift: boolean;
 }
+
+export interface Binding {
+  /** Human-readable, and the thing `docs/keybindings.md` quotes. */
+  keys: string;
+  when: Mode | "any";
+  command: string;
+  description: string;
+}
+
+/**
+ * Order matters: the first binding whose chord and mode match wins, so more
+ * specific modes are listed before `any`.
+ */
+export const BINDINGS: readonly Binding[] = [
+  {
+    keys: "Mod+K",
+    when: "any",
+    command: "palette.open",
+    description: "Open the command bar",
+  },
+  {
+    keys: "Escape",
+    when: "command",
+    command: "palette.close",
+    description: "Leave the command bar",
+  },
+  { keys: "Mod+N", when: "any", command: "note.new", description: "New note" },
+  { keys: "Mod+S", when: "any", command: "note.save", description: "Save now" },
+  { keys: "Mod+F", when: "any", command: "search.focus", description: "Search notes" },
+  {
+    keys: "Mod+Backspace",
+    when: "list",
+    command: "note.delete",
+    description: "Delete the selected note",
+  },
+  {
+    keys: "Mod+Shift+L",
+    when: "any",
+    command: "theme.toggle",
+    description: "Toggle light and dark",
+  },
+  { keys: "ArrowDown", when: "list", command: "list.next", description: "Next note" },
+  { keys: "ArrowUp", when: "list", command: "list.prev", description: "Previous note" },
+  {
+    keys: "Escape",
+    when: "editor",
+    command: "editor.blur",
+    description: "Return focus to the list",
+  },
+];
 
 /** `Mod` is Cmd on macOS and Ctrl everywhere else. */
 export function chordName(chord: Chord): string {
@@ -30,32 +82,17 @@ export function chordName(chord: Chord): string {
  * and swallowing every key press breaks text input.
  */
 export function resolve(mode: Mode, chord: Chord): string | null {
-  switch (chordName(chord)) {
-    case "Mod+K":
-      return "palette.open";
-    case "Mod+F":
-      return "search.focus";
-    case "Mod+N":
-      return "note.new";
-    case "Mod+S":
-      return "note.save";
-    case "ArrowDown":
-      return mode === "list" ? "list.next" : null;
-    case "ArrowUp":
-      return mode === "list" ? "list.prev" : null;
-    case "Mod+Backspace":
-      return mode === "list" ? "note.delete" : null;
-    case "Mod+Shift+L":
-      return "theme.toggle";
-    case "Escape":
-      // Every mode that can trap focus needs a way out of it. Handling only the
-      // editor left the command bar with no exit but the mouse.
-      if (mode === "command") return "palette.close";
-      if (mode === "editor") return "editor.blur";
-      return null;
-    default:
-      return null;
+  const name = chordName(chord);
+  for (const binding of BINDINGS) {
+    if (binding.when !== "any" && binding.when !== mode) continue;
+    if (binding.keys === name) return binding.command;
   }
+  return null;
+}
+
+/** Every binding that applies in `mode`, for the command bar's listing. */
+export function bindingsFor(mode: Mode): Binding[] {
+  return BINDINGS.filter((b) => b.when === "any" || b.when === mode);
 }
 
 export function fromEvent(event: KeyboardEvent): Chord {
