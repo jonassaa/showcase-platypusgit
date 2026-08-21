@@ -96,12 +96,13 @@ describe("parse", () => {
 });
 
 describe("escapeHtml", () => {
-  it("escapes the brackets and the quote", () => {
-    expect(escapeHtml('<a href="x">')).toBe("&lt;a href=&quot;x&quot;&gt;");
+  it("escapes the four characters that change the document", () => {
+    expect(escapeHtml('<a href="x">&')).toBe("&lt;a href=&quot;x&quot;&gt;&amp;");
   });
 
-  it("leaves ordinary text alone", () => {
-    expect(escapeHtml("plain prose")).toBe("plain prose");
+  // fix/render-escape: escaping & last turned &lt; into &amp;lt;
+  it("does not double-escape an entity it just produced", () => {
+    expect(escapeHtml("a < b")).toBe("a &lt; b");
   });
 });
 
