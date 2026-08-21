@@ -47,3 +47,18 @@ describe("exportFilename", () => {
     expect(exportFilename(note("!!!", "x"))).toBe("note.html");
   });
 });
+
+describe("the baked-in theme", () => {
+  it("inlines the token block so the file needs no stylesheet", () => {
+    const html = exportNote(note("x", "text"));
+    expect(html).toContain("--bg:");
+    expect(html).toContain("--fg:");
+  });
+
+  it("bakes the dark palette when asked", () => {
+    const light = exportNote(note("x", "text"));
+    const dark = exportNote(note("x", "text"), { theme: "dark" });
+    expect(light).not.toBe(dark);
+    expect(dark).toContain("#17181a");
+  });
+});

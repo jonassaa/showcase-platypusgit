@@ -76,3 +76,17 @@ export function applyTheme(root: HTMLElement, name: ThemeName): void {
   }
   root.dataset["theme"] = name;
 }
+
+/**
+ * The tokens as a CSS block, for anything that has to serialise a theme.
+ *
+ * This is why the values live in TypeScript rather than only in the stylesheet:
+ * the HTML export ships one file and cannot reference a stylesheet that is not
+ * in it.
+ */
+export function themeCss(name: ThemeName): string {
+  const body = Object.entries(themeTokens(name))
+    .map(([key, value]) => `  ${key}: ${value};`)
+    .join("\n");
+  return `:root {\n${body}\n}`;
+}

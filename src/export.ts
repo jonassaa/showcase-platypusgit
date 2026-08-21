@@ -5,15 +5,20 @@
 // external stylesheet, font or script.
 
 import { escapeHtml, render } from "./markdown/render.ts";
-import type { Note } from "./types.ts";
+import { themeCss } from "./theme.ts";
+import type { Note, ThemeName } from "./types.ts";
 
 /** Minimal, self-contained styling. Inlined for the same reason as everything else. */
 const BASE_CSS = `
   body { margin: 0 auto; padding: 2rem 1.25rem; max-width: 42rem;
          font: 16px/1.6 ui-sans-serif, system-ui, sans-serif; }
+  body { background: var(--bg); color: var(--fg); }
   h1, h2, h3 { line-height: 1.25; }
-  code { padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
-  pre { padding: 10px 12px; border-radius: 6px; overflow-x: auto; }
+  a { color: var(--accent); }
+  code { padding: 1px 4px; border-radius: 3px; font-size: 0.9em;
+         background: var(--code-bg); }
+  pre { padding: 10px 12px; border-radius: 6px; overflow-x: auto;
+        background: var(--code-bg); border: 1px solid var(--border); }
   pre code { padding: 0; background: none; }
   blockquote { margin: 0 0 1rem; padding-left: 12px; border-left: 3px solid currentColor; }
 `.trim();
@@ -21,6 +26,8 @@ const BASE_CSS = `
 export interface ExportOptions {
   /** Written into the document title. Defaults to the note's own title. */
   title?: string;
+  /** Which palette to bake in. Defaults to light — an export is usually printed. */
+  theme?: ThemeName;
 }
 
 /**
@@ -38,7 +45,7 @@ export function exportNote(note: Note, options: ExportOptions = {}): string {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${escapeHtml(title)}</title>`,
-    `<style>\n${BASE_CSS}\n</style>`,
+    `<style>\n${themeCss(options.theme ?? "light")}\n${BASE_CSS}\n</style>`,
     "</head>",
     "<body>",
     render(note.body),
