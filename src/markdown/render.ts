@@ -8,15 +8,19 @@ import { parse, type Block } from "./parse.ts";
 import type { Inline } from "./lex.ts";
 
 /**
- * Escape what would otherwise change the shape of the document.
+ * Escape the four characters that can change the shape of the document.
  *
- * Ampersands are still not handled. It is a real hole — a note containing `&`
- * produces markup a strict parser rejects — and it is left open deliberately,
- * because substituting it in the wrong order turns an already-escaped bracket
- * entity into a double-escaped one, which is worse than the hole.
+ * `&` has to be here at all, and it has to go first. Before fix/render-escape
+ * this escaped the brackets and the quote and left ampersands raw, so a note
+ * containing `&` produced markup a strict parser rejects; substituting `&`
+ * last would have been worse still, turning `&lt;` into `&amp;lt;`.
  */
 export function escapeHtml(text: string): string {
-  return text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 export function renderInline(tokens: readonly Inline[]): string {
