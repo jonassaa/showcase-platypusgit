@@ -24,6 +24,36 @@ export interface Ring {
   limit: number;
 }
 
+/**
+ * The overlapping prefix and suffix of two strings.
+ *
+ * A 40 KB note copied on every keystroke was what made the editor feel heavy on
+ * long documents. Storing only the changed middle turns a per-keystroke copy
+ * into a per-keystroke handful of characters.
+ */
+export function diffMiddle(
+  before: string,
+  after: string,
+): { at: number; removed: string; inserted: string } {
+  let head = 0;
+  const max = Math.min(before.length, after.length);
+  while (head < max && before[head] === after[head]) head += 1;
+
+  let tail = 0;
+  while (
+    tail < max - head &&
+    before[before.length - 1 - tail] === after[after.length - 1 - tail]
+  ) {
+    tail += 1;
+  }
+
+  return {
+    at: head,
+    removed: before.slice(head, before.length - tail),
+    inserted: after.slice(head, after.length - tail),
+  };
+}
+
 export function emptyRing(limit = 100): Ring {
   return { entries: [], cursor: -1, limit };
 }
