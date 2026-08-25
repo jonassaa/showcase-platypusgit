@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   canRedo,
   canUndo,
+  diffMiddle,
   emptyRing,
   record,
   redo,
@@ -82,5 +83,48 @@ describe("undo across note switches", () => {
     expect(back.entry?.body).toBe("b1");
     const again = undo(back.ring);
     expect(again.entry).toBeNull();
+  });
+});
+
+describe("diffMiddle", () => {
+  it("finds an insertion in the middle", () => {
+    expect(diffMiddle("abcf", "abcdef")).toEqual({
+      at: 3,
+      removed: "",
+      inserted: "de",
+    });
+  });
+
+  it("finds a deletion", () => {
+    expect(diffMiddle("abcdef", "abf")).toEqual({
+      at: 2,
+      removed: "cde",
+      inserted: "",
+    });
+  });
+
+  it("reports nothing for identical strings", () => {
+    expect(diffMiddle("same", "same")).toEqual({ at: 4, removed: "", inserted: "" });
+  });
+});
+
+describe("eviction", () => {
+  it("keeps the newest `limit` states", () => {
+    let ring = emptyRing(3);
+    for (let i = 0; i < 10; i += 1) {
+      ring = record(ring, entry("a", `v${i}`, i * 5000));
+    }
+    expect(ring.entries).toHaveLength(3);
+    expect(ring.entries[2]?.body).toBe("v9");
+  });
+
+  it("leaves the oldest reachable state reachable", () => {
+    let ring = emptyRing(2);
+    ring = record(ring, entry("a", "v0", 0));
+    ring = record(ring, entry("a", "v1", 5000));
+    ring = record(ring, entry("a", "v2", 10_000));
+    const back = undo(ring);
+    expect(back.entry?.body).toBe("v1");
+    expect(canUndo(back.ring)).toBe(false);
   });
 });
