@@ -7,6 +7,7 @@
 import { render } from "./markdown/render.ts";
 import { search, segment } from "./search.ts";
 import { applyTheme, followSystem, nextTheme, preferredTheme } from "./theme.ts";
+import { exportFilename, exportNote } from "./export.ts";
 import { fromEvent, resolve } from "./keymap.ts";
 import {
   activeNote,
@@ -125,6 +126,20 @@ function run(ui: Ui, command: string): boolean {
       break;
     case "note.save":
       break;
+    case "export.html": {
+      const note = activeNote(state);
+      if (note === null) break;
+      // A Blob and an object URL, because a data: URL of a whole document trips
+      // length limits in more than one browser.
+      const blob = new Blob([exportNote(note, { theme })], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = exportFilename(note);
+      link.click();
+      URL.revokeObjectURL(url);
+      return true;
+    }
     case "search.focus":
       ui.query.focus();
       ui.query.select();

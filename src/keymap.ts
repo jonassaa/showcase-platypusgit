@@ -39,6 +39,8 @@ export function resolve(mode: Mode, chord: Chord): string | null {
       return "note.new";
     case "Mod+S":
       return "note.save";
+    case "Mod+E":
+      return "export.html";
     case "ArrowDown":
       return mode === "list" ? "list.next" : null;
     case "ArrowUp":
