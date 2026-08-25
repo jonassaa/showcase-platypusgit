@@ -54,7 +54,7 @@ export function diffMiddle(
   };
 }
 
-export function emptyRing(limit = 100): Ring {
+export function emptyRing(limit = 200): Ring {
   return { entries: [], cursor: -1, limit };
 }
 
@@ -84,7 +84,11 @@ export function record(ring: Ring, entry: Entry): Ring {
     return { ...ring, entries: kept, cursor: kept.length - 1 };
   }
   kept.push(entry);
-  return { ...ring, entries: kept, cursor: kept.length - 1 };
+  // Evicting from the front keeps the newest `limit` states, which is the half
+  // anyone actually undoes into. The oldest reachable state stays reachable.
+  const trimmed =
+    kept.length > ring.limit ? kept.slice(kept.length - ring.limit) : kept;
+  return { ...ring, entries: trimmed, cursor: trimmed.length - 1 };
 }
 
 export function canUndo(ring: Ring): boolean {
