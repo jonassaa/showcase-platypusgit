@@ -24,6 +24,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          # The store, not node_modules: pnpm links from the store, so caching
+          # the store is what actually saves the download.
+          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
