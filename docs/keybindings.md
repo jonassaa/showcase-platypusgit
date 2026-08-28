@@ -46,6 +46,20 @@ having to know about the other.
 and `main.ts` calls `preventDefault()` only when it gets a command back. That is
 what lets you type an asterisk in the editor without opening anything.
 
+## The command bar
+
+`Mod+K` gives the keyboard to the command bar. While it has focus the mode is
+`command`, which is why `ArrowDown` scrolls its list rather than moving the note
+selection, and why `Escape` closes it rather than blurring the editor.
+
+Every entry in the bar comes from `bindingsFor(mode)`, so a binding that exists
+is a binding the bar can find. There is no separate list of commands to forget to
+update — if you can press it, you can search for it, and if you cannot search for
+it, it does not exist.
+
+Typing filters on both the description and the chord, so `mod+k` and `command`
+both find the same row.
+
 ## What is not bound
 
 No binding uses a bare letter, and none uses `Alt`. Bare letters belong to the
