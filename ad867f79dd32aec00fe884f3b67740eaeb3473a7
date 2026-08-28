@@ -1,0 +1,8 @@
+Post-mortem, short version: this shipped in two releases because the test
+suite only ever asserted a single match, and a single match is the one case
+the bug got right.
+
+The fix adds the multi-match assertion, which is the part that actually
+prevents a recurrence. What it does NOT cover is highlighting inside code
+spans — that is #3, still open, and fix/search-highlight is the half-done
+branch for it.
