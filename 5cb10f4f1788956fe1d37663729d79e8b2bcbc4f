@@ -1,0 +1,7 @@
+Release sign-off for 1.0.0.
+
+Checked: pnpm test green on a clean tree, pnpm build opens from file://,
+the changelog entry is dated, and the tag is annotated.
+
+NOT checked, because it is not set up: the tag is unsigned. See the TODO
+in README.md.
