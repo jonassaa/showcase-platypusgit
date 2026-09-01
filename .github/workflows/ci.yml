@@ -13,6 +13,10 @@ concurrency:
 
 jobs:
   test:
+    # Drafts are for work in progress by definition, and a red check on one tells
+    # nobody anything they did not already know. Marking the pull request ready
+    # for review is what asks for the suite.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +28,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          # The store, not node_modules: pnpm links from the store, so caching
+          # the store is what actually saves the download.
+          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
